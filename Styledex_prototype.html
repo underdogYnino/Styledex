@@ -16,6 +16,7 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono)}
+html{overscroll-behavior-x:contain}
 body{
   min-height:100vh;
   background:
@@ -75,7 +76,7 @@ body.fxhigh .card:hover .swatch::after{
 @keyframes cardscan{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
 /* 电流马赛克干扰：页面不动，只在叠层做撕裂条带 + 马赛克静电（仅 fxhigh，JS 间歇触发 body.glitching） */
 .glitchfx{display:none}
-body.fxhigh.glitching .glitchfx{display:block;position:fixed;inset:0;pointer-events:none;z-index:9993;animation:gint .4s steps(5) 1}
+body.fxhigh.glitching .glitchfx{display:block;position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:9993;animation:gint .4s steps(5) 1}
 .glitchfx::before{content:"";position:absolute;inset:0;mix-blend-mode:screen;
   background:repeating-linear-gradient(0deg, rgba(255,46,136,.14) 0 2px, transparent 2px 4px, rgba(25,240,255,.14) 4px 6px, transparent 6px 13px);
   animation:gband .4s steps(6) 1}
@@ -94,11 +95,11 @@ body.fxhigh.glitching .glitchfx{display:block;position:fixed;inset:0;pointer-eve
 }
 @keyframes gmos{0%{background-position:0 0,0 0;opacity:.5}33%{background-position:5px 2px,2px 5px;opacity:.72}66%{background-position:-4px 1px,1px -4px;opacity:.4}100%{background-position:0 0,0 0;opacity:0}}
 
-.wrap{max-width:1280px;margin:0 auto;padding:22px 18px 80px}
-/* 大屏整体放大，避免在宽屏/高分屏上显得又小又挤 */
-@media(min-width:1500px){ body{zoom:1.12} }
-@media(min-width:1920px){ body{zoom:1.28} }
-@media(min-width:2560px){ body{zoom:1.5} }
+.wrap{max-width:1280px;margin:0 auto;padding:26px 26px 96px}
+/* 仅在比 14" 更宽的外接屏整体放大；14"(~1512) 保持原始比例，留呼吸感 */
+@media(min-width:1700px){ body{zoom:1.1} }
+@media(min-width:2100px){ body{zoom:1.26} }
+@media(min-width:2560px){ body{zoom:1.42} }
 
 /* top bar */
 .topbar{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);
@@ -163,7 +164,7 @@ body.fxhigh .rail-r{right:14px;border-right:1px solid var(--line)}
 .chip:hover{border-color:var(--line-bright);color:var(--white)}
 .chip.on{background:var(--line-bright);color:#04060c;border-color:var(--line-bright);box-shadow:0 0 12px rgba(108,124,255,.5)}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
 
 .card{position:relative;border:1px solid var(--line);background:var(--panel);cursor:pointer;overflow:hidden;transition:.15s}
 .card:hover{border-color:var(--line-bright);transform:translateY(-2px);box-shadow:0 6px 24px rgba(40,55,160,.35)}
@@ -1353,11 +1354,6 @@ function openDetail(id){
         </div>
       </div>
       <div>
-        <div class="panel dpanel laypanel">
-          <div class="sectlabel">排版天性 // TYPESETTING DNA <span>${t('dnaHint')}</span></div>
-          <div id="gaugebox">${layGaugesEditable()}</div>
-          <button class="layreset" id="layreset" onclick="resetLay()">${t('reset')}</button>
-        </div>
         <div class="panel dpanel">
           <div class="sectlabel">配色色板 // PALETTE <span>${t('paletteHint')}</span></div>
           <div class="pal">${s.pal.map(c=>`<div class="sw" style="background:${c}" onclick="copyHex(this,'${c}')">${c}</div>`).join('')}</div>
@@ -1373,6 +1369,11 @@ function openDetail(id){
         <div class="panel dpanel">
           <div class="sectlabel">相邻风格 // YOU MAY ALSO LIKE <span>${t('adjHint')}</span></div>
           <div class="adj">${s.adj.map(aid=>{const a=byId(aid);return a?`<span class="adjchip" onclick="openDetail('${a.id}')">${sName(a)} <small>${lang==='en'?a.name:a.en} ›</small></span>`:'';}).join('')}</div>
+        </div>
+        <div class="panel dpanel laypanel">
+          <div class="sectlabel">排版天性 // TYPESETTING DNA <span>${t('dnaHint')}</span></div>
+          <div id="gaugebox">${layGaugesEditable()}</div>
+          <button class="layreset" id="layreset" onclick="resetLay()">${t('reset')}</button>
         </div>
       </div>
     </div>`;
