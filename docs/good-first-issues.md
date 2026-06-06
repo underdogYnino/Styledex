@@ -1,57 +1,107 @@
-# Good First Issues · 新手任务清单
+# Good First Issues — ready to post
 
-> 这些是可以直接复制到 GitHub Issues 发布的任务（你建好仓库后照贴即可）。
-> 都打 `good first issue` + 对应标签，方便新人认领。Styledex 最缺的就是**更多风格**。
-
----
-
-### ✦ #1 认领并新增一个风格（最欢迎）
-**labels:** `new-style`, `good first issue`
-
-挑一个还没收录的设计风格，按 [CONTRIBUTING.md](../CONTRIBUTING.md) 加进去。还没被收录、值得做的候选：
-
-- 极简主义海报风 / Brutalist Poster
-- 蒸汽朋克手账 / Junk Journal
-- 新中式国潮 2.0
-- 苹果液态玻璃 / Liquid Glass (2025)
-- 复古赛车 / Racing Livery
-- 医疗科技 / Medtech Clean
-- 朋克 zine / Punk Zine
-- 极简金融 / Fintech Minimal
-
-一个风格 ≈ 一段结构化数据。挑一个，开 PR。
+> 复制即用：每条含 **Title / Labels / Body**。在仓库 **Issues → New issue → Open a blank issue** 里逐条粘贴。
+> 标签里 `good first issue`、`help wanted`、`documentation`、`enhancement` 是 GitHub 自带的；`new-style`、`a11y` 需要先在 **Issues → Labels → New label** 建一下（建议颜色：new-style `#7dffb0`、a11y `#6c7cff`）。
 
 ---
 
-### ✶ #2 给风格补「相邻风格」推荐
-**labels:** `enhancement`, `good first issue`
+## 1 ✦ Claim & add a new style
 
-部分风格的 `adj`（相邻风格）还能更准。挑几个风格，校准它们的 `adj`，让「你可能也喜欢」更合理。
+**Labels:** `new-style` · `good first issue`
 
----
+**Body:**
+```
+Pick a design style we don't have yet and add it — adding a style is basically
+adding one block of structured data. Full guide: CONTRIBUTING.md.
 
-### ✎ #3 校对/润色风格配方与一句话抽象
-**labels:** `docs`, `good first issue`
+Open candidates (claim one in a comment):
+- Brutalist Poster      - Junk Journal         - Modern Guochao (new Chinese)
+- Liquid Glass (2025)   - Racing Livery        - Medtech Clean
+- Punk Zine             - Fintech Minimal      - Bauhaus Poster
 
-通读现有风格的 `recipe` / `one`（一句话抽象），修正不准确或不够有趣的描述。中英文都欢迎。
+Comment to claim, then open a PR. First time is totally fine — we'll help in review.
 
----
-
-### ⚙ #4 把风格数据拆成独立文件
-**labels:** `enhancement`, `help wanted`
-
-当前风格数据内联在 HTML 里。探索把 `STYLES` / `EXTRA` / `LAYO` 拆成独立的 `styles.json`，并在不破坏「双击即开」体验的前提下加载（注意 `file://` 下的 fetch 限制）。
-
----
-
-### ♿ #5 无障碍 / 对比度审查
-**labels:** `a11y`, `good first issue`
-
-检查暗色界面的文字对比度、键盘可达性、焦点态，提改进建议或 PR。
+—— 中文 ——
+挑一个还没收录的设计风格加进来：加一个风格 ≈ 加一段结构化数据，步骤见 CONTRIBUTING.md。
+在评论里认领上面任意一个候选（或自荐），然后提 PR。第一次提没关系，我们会在 review 里帮你。
+```
 
 ---
 
-### 🎨 #6 旗舰风格高保真样张
-**labels:** `enhancement`, `help wanted`
+## 2 ✶ Sharpen "you may also like" links
 
-选一个风格（如赛博朋克 / 瑞士国际主义），把它的某个跨品类样本做成真正的高保真页面，作为「门面」展示。
+**Labels:** `enhancement` · `good first issue`
+
+**Body:**
+```
+Some styles' `adj` (adjacent/related styles) could be more accurate. Pick a few
+styles, review their `adj` so the "you may also like" suggestions feel right.
+
+—— 中文 ——
+部分风格的 `adj`（相邻风格）还能更准。挑几个风格，校准它们的 `adj`，
+让「你可能也喜欢」更合理。
+```
+
+---
+
+## 3 ✎ Proofread & polish recipes / one-liners
+
+**Labels:** `documentation` · `good first issue`
+
+**Body:**
+```
+Read through existing styles' `recipe` and one-liner (`one`) and fix anything
+inaccurate or not punchy enough. Both English (I18N) and Chinese welcome.
+
+—— 中文 ——
+通读现有风格的 `recipe` 与一句话抽象（`one`），修正不准确或不够有趣的描述。
+中英文都欢迎（英文在 I18N，中文在 STYLES/EXTRA）。
+```
+
+---
+
+## 4 ⚙ Split style data into a JSON file
+
+**Labels:** `enhancement` · `help wanted`
+
+**Body:**
+```
+Style data is currently inline in the HTML. Explore extracting STYLES / EXTRA /
+LAYO / I18N into a styles.json, loaded without breaking the "just open the file"
+experience (mind file:// fetch limits — may need a tiny build or inlining step).
+
+—— 中文 ——
+当前风格数据内联在 HTML 里。探索把 STYLES / EXTRA / LAYO / I18N 拆成 styles.json，
+在不破坏「双击即开」体验的前提下加载（注意 file:// 下 fetch 限制，可能需要轻量构建）。
+```
+
+---
+
+## 5 ♿ Accessibility & contrast review
+
+**Labels:** `a11y` · `good first issue`
+
+**Body:**
+```
+Review the dark UI for text contrast, keyboard navigation, and focus states.
+File findings or open a PR with fixes.
+
+—— 中文 ——
+检查暗色界面的文字对比度、键盘可达性、焦点态，提改进建议或直接提 PR。
+```
+
+---
+
+## 6 🎨 Flagship hi-fi sample
+
+**Labels:** `enhancement` · `help wanted`
+
+**Body:**
+```
+Pick one style (e.g. Cyberpunk or Swiss) and turn one of its cross-category
+samples into a true high-fidelity page — a showcase "face" for the project.
+
+—— 中文 ——
+选一个风格（如赛博朋克 / 瑞士国际主义），把它的某个跨品类样本做成真正的
+高保真页面，作为项目的「门面」展示。
+```

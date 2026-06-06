@@ -21,7 +21,7 @@
 ![PRs](https://img.shields.io/badge/PRs-welcome-ff2e88?style=flat-square&labelColor=05070d)
 ![Single file](https://img.shields.io/badge/SINGLE__FILE-HTML-caffe0?style=flat-square&labelColor=05070d)
 
-[**▸ 在线 DEMO**](#-在线-demo) · [**▸ 贡献一个风格**](./CONTRIBUTING.md)
+[**▸ 在线 DEMO**](https://underdogynino.github.io/Styledex/) · [**▸ 贡献一个风格**](./CONTRIBUTING.md)
 
 </div>
 
@@ -55,11 +55,9 @@ LANG    // 双语            中文 / English 一键切换
 
 ## `>_` 在线 DEMO
 
-仓库已带 GitHub Pages 入口（`index.html` 会自动跳进终端）。在 **Settings → Pages → Build from branch → `main` / root** 开启后，访问：
+**▸ [underdogynino.github.io/Styledex](https://underdogynino.github.io/Styledex/)**
 
-```
-https://underdogynino.github.io/Styledex/
-```
+（由 GitHub Pages 从 `index.html` 提供，自动跳进终端。）
 
 ## `>_` 文件清单
 

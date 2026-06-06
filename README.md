@@ -21,7 +21,7 @@ A visual terminal for design styles — browse, recognize, and walk away with a 
 ![PRs](https://img.shields.io/badge/PRs-welcome-ff2e88?style=flat-square&labelColor=05070d)
 ![Single file](https://img.shields.io/badge/SINGLE__FILE-HTML-caffe0?style=flat-square&labelColor=05070d)
 
-[**▸ LIVE DEMO**](#-live-demo) · [**▸ Add a style**](./CONTRIBUTING.md)
+[**▸ LIVE DEMO**](https://underdogynino.github.io/Styledex/) · [**▸ Add a style**](./CONTRIBUTING.md)
 
 </div>
 
@@ -55,11 +55,9 @@ Zero dependencies, zero build. Just open [`Styledex_prototype.html`](./Styledex_
 
 ## `>_` Live demo
 
-GitHub Pages entry is included (`index.html` boots into the terminal). After enabling **Settings → Pages → Build from branch → `main` / root**:
+**▸ [underdogynino.github.io/Styledex](https://underdogynino.github.io/Styledex/)**
 
-```
-https://underdogynino.github.io/Styledex/
-```
+(Served via GitHub Pages from `index.html`, which boots into the terminal.)
 
 ## `>_` Files
 
