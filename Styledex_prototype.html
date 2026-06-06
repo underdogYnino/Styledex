@@ -94,7 +94,11 @@ body.fxhigh.glitching .glitchfx{display:block;position:fixed;inset:0;pointer-eve
 }
 @keyframes gmos{0%{background-position:0 0,0 0;opacity:.5}33%{background-position:5px 2px,2px 5px;opacity:.72}66%{background-position:-4px 1px,1px -4px;opacity:.4}100%{background-position:0 0,0 0;opacity:0}}
 
-.wrap{max-width:1080px;margin:0 auto;padding:22px 18px 80px}
+.wrap{max-width:1280px;margin:0 auto;padding:22px 18px 80px}
+/* 大屏整体放大，避免在宽屏/高分屏上显得又小又挤 */
+@media(min-width:1500px){ body{zoom:1.12} }
+@media(min-width:1920px){ body{zoom:1.28} }
+@media(min-width:2560px){ body{zoom:1.5} }
 
 /* top bar */
 .topbar{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);
