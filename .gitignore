@@ -1,0 +1,24 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Node / tooling
+node_modules/
+
+# Local dev backups & scratch (not part of the project history)
+*_v*_backup.html
+diag.js
+
+# Internal strategy / business docs — keep PRIVATE, do not publish
+Styledex_PRD.md
+docs/Styledex_API_MCP_Design.md
+docs/Styledex_validation_plan.md
+docs/Styledex_test1_consistency.html
+
+# Local reference material (screenshots / style refs) — not for the public repo
+cases/
