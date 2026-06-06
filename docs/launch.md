@@ -15,7 +15,7 @@ design  design-inspiration  design-system  ui-design  color-palette
 typography  ai-prompts  frontend  no-dependencies  cyberpunk  open-source
 ```
 
-**Website**：`https://<你的用户名>.github.io/Styledex/`
+**Website**：`https://underdogynino.github.io/Styledex/`
 
 ---
 
@@ -25,7 +25,7 @@ typography  ai-prompts  frontend  no-dependencies  cyberpunk  open-source
 > 你说不清想要什么设计风格？先用眼睛认出它。
 > 60 种命名风格，每个带配色 + 排版 + 能直接喂 AI 的 prompt。
 > 单文件、零依赖、可社区共建。
-> 🔗 github.com/<你的用户名>/Styledex
+> 🔗 github.com/underdogYnino/Styledex
 > #设计 #开源 #frontend
 
 ## X / Twitter（带钩子的版本）
@@ -37,7 +37,7 @@ typography  ai-prompts  frontend  no-dependencies  cyberpunk  open-source
 > 刷图认脸 → 看懂这个风格的配方 → 拿走配色/排版/prompt。
 >
 > 还把「排版」做成了和配色并列的可筛选维度。
-> github.com/<你的用户名>/Styledex
+> github.com/underdogYnino/Styledex
 
 ## 社区长文（论坛 / Show HN / 即刻 / V2EX 等）
 
@@ -57,7 +57,7 @@ typography  ai-prompts  frontend  no-dependencies  cyberpunk  open-source
 >
 > 单文件 HTML、零依赖、MIT 协议。最想要的贡献就是**更多风格**——加一个风格基本就是加一段结构化数据。
 >
-> Demo + 代码：github.com/<你的用户名>/Styledex
+> Demo + 代码：github.com/underdogYnino/Styledex
 >
 > 欢迎拍砖 / 提风格 / 提 PR。
 

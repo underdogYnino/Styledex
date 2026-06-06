@@ -317,6 +317,7 @@ body.fxhigh .rail-r{right:14px;border-right:1px solid var(--line)}
     <div class="brand">STYLE<b>//</b>DEX</div>
     <div class="right">
       <div class="meta">STYLE TERMINAL v0.8 · <span id="subjn">60</span> SUBJECTS · <span class="blink">●</span> ONLINE</div>
+      <button class="fxbtn" id="langbtn" onclick="toggleLang()">中 / EN</button>
       <button class="fxbtn" onclick="openBoard()">★ BOARD <b id="favn">0</b></button>
       <button class="fxbtn" onclick="randomStyle()">▚ RANDOM</button>
       <button class="fxbtn" id="fxbtn" onclick="toggleFX()">FX <b id="fxstate">HIGH</b></button>
@@ -327,23 +328,23 @@ body.fxhigh .rail-r{right:14px;border-right:1px solid var(--line)}
 
   <div id="list">
     <div class="filterhead">
-      <span class="fh-l">▞ STYLE FILTER</span>
+      <span class="fh-l" id="fhFilter">▞ STYLE FILTER</span>
       <button class="tagtoggle" id="tagtoggle" onclick="toggleTags()">[ + ALL TAGS ▾ ]</button>
     </div>
     <div class="chips" id="chips"></div>
     <div class="tagdrawer hide" id="tagdrawer"></div>
-    <div class="filterhead" style="margin-top:4px"><span class="fh-l">▞ TYPESET · 排版主轴</span><span style="font-size:10px;color:var(--text-dim);letter-spacing:.12em">按版式找风格</span></div>
+    <div class="filterhead" style="margin-top:4px"><span class="fh-l" id="fhTypeset">▞ TYPESET · 排版主轴</span><span id="fhTypesetHint" style="font-size:10px;color:var(--text-dim);letter-spacing:.12em">按版式找风格</span></div>
     <div class="chips" id="laychips" style="margin-bottom:16px"></div>
-    <div class="sectlabel">STYLE INDEX // 刷图认脸，点进任意风格查看「配方 + 跨品类样本」 <span id="count"></span></div>
+    <div class="sectlabel">STYLE INDEX // <span id="idxHint">刷图认脸，点进任意风格查看「配方 + 跨品类样本」</span> <span id="count"></span></div>
     <div class="grid" id="grid"></div>
   </div>
 
   <div id="detail" class="hide"></div>
   <div id="board" class="hide"></div>
 
-  <div class="foot">
+  <div class="foot" id="foot">
     STYLEDEX PROTOTYPE v0.8 · 60 STYLES · 配色 + 排版 双主轴(可交互) · 每类样本 6 案例 · 收藏 BOARD · 核心资产 = 配方 + prompt<br>
-    [FX] 电流马赛克干扰 · [★ BOARD] 收藏夹 · [▚ RANDOM] 随机风格 · 历史版本 v1–v6 backup 可退回
+    [FX] 电流马赛克干扰 · [★ BOARD] 收藏夹 · [▚ RANDOM] 随机风格 · [中/EN] 双语
   </div>
 </div>
 
@@ -844,6 +845,117 @@ const EXTRA={
 };
 const exOf=id=>EXTRA[id]||{one:'',when:''};
 
+/* ===================== i18n 中/英 ===================== */
+let lang=(function(){try{return localStorage.getItem('styledex_lang')||(/^zh/i.test(navigator.language||'')?'zh':'en');}catch(e){return 'zh';}})();
+const STR={
+ idxHint:{zh:'刷图认脸，点进任意风格查看「配方 + 跨品类样本」',en:'Browse & recognize — open any style for its recipe + cross-category samples'},
+ fhFilter:{zh:'▞ 风格筛选',en:'▞ STYLE FILTER'},
+ fhTypeset:{zh:'▞ 排版主轴 TYPESET',en:'▞ TYPESET · TYPOGRAPHY'},
+ fhTypesetHint:{zh:'按版式找风格',en:'find styles by layout'},
+ crossHint:{zh:'点击放大 · 每类6个案例 · 随排版实时变',en:'click to enlarge · 6 cases each · re-flows with type'},
+ paletteHint:{zh:'点击复制 HEX',en:'click to copy HEX'},
+ dnaHint:{zh:'点选即改 · 实时同步预览',en:'click to tweak · live-syncs previews'},
+ promptHint:{zh:'喂给生图/编程助手',en:'feed to image / coding AI'},
+ adjHint:{zh:'在风格空间里导航',en:'navigate the style space'},
+ whenuseHint:{zh:'适合的产品 / 页面类型',en:'best-fit products / page types'},
+ reset:{zh:'↺ 还原默认',en:'↺ Reset'},
+ modalHint:{zh:'← / → 切换案例 · 同一风格 · 6 种排版/功能/用途',en:'← / → switch case · same style · 6 layouts/uses'},
+ boardTitle:{zh:'★ 我的风格板',en:'★ My Board'},
+ boardEmpty1:{zh:'▢ 还没有收藏任何风格',en:'▢ No styles saved yet'},
+ boardEmpty2:{zh:'在首页或详情页点 ☆ 把喜欢的风格存进来',en:'tap ☆ on the index or a detail page to save styles here'},
+ foot1:{zh:'STYLEDEX PROTOTYPE v0.8 · 60 STYLES · 配色 + 排版 双主轴(可交互) · 每类样本 6 案例 · 收藏 BOARD · 核心资产 = 配方 + prompt',
+        en:'STYLEDEX PROTOTYPE v0.8 · 60 STYLES · color + typography dual-axis (interactive) · 6 samples / category · BOARD favorites · core asset = recipe + prompt'},
+ foot2:{zh:'[FX] 电流马赛克干扰 · [★ BOARD] 收藏夹 · [▚ RANDOM] 随机风格 · [中/EN] 双语',
+        en:'[FX] interference glitch · [★ BOARD] favorites · [▚ RANDOM] random style · [中/EN] bilingual'},
+};
+function t(k){const v=STR[k];return v?(v[lang]||v.zh):k;}
+const LAYF_EN={'a-l':'Left','a-c':'Center','sc-xl':'Big type','sc-sm':'Compact','den-airy':'Airy','den-dense':'Dense','grid':'Strict grid','upper':'All caps'};
+const LAYAXES_EN={a:['L Left','C Ctr'],sc:['S','M','L','XL'],den:['Airy','Med','Dense'],g:['Lo','Mid','Hi'],u:['Aa','AA']};
+function narr(L){
+  if(lang==='en')return [L.a==='c'?'Centered':'Left-aligned',{xl:'Display type',lg:'Standard scale',md:'Mid size',sm:'Compact'}[L.sc],
+    {airy:'Airy',med:'Balanced',dense:'Dense'}[L.den],L.g>=2?'Strict grid':(L.g>=1?'Light grid':'Free layout'),
+    L.u?'All caps':'Sentence case',(L.ls>=.1?'Wide tracking':null)].filter(Boolean).join(' · ');
+  return [L.a==='c'?'居中':'左对齐',{xl:'大字主导',lg:'标准字阶',md:'中字号',sm:'紧凑小字'}[L.sc],
+    {airy:'留白疏朗',med:'适中密度',dense:'信息密集'}[L.den],L.g>=2?'严格网格':(L.g>=1?'轻网格':'自由版式'),
+    L.u?'全大写':'常规大小写',(L.ls>=.1?'宽字距':null)].filter(Boolean).join(' · ');
+}
+const TYPING={
+ zh:['DECRYPTING AESTHETIC SIGNATURES // '+60+' STYLES INDEXED...','你说不清想要什么风格？让眼睛先认出它。','STYLE = 一组多维标签的常见组合 // 配方 + prompt 可带走','SELECT A SUBJECT TO VIEW DOSSIER','核心资产不是图片库，是风格说明书。'],
+ en:['DECRYPTING AESTHETIC SIGNATURES // 60 STYLES INDEXED...',"Can't name the style you want? Let your eyes recognize it first.",'STYLE = a common combination of multi-dim tags // recipe + prompt, ready to take','SELECT A SUBJECT TO VIEW DOSSIER','The core asset is not an image library — it is a style spec sheet.'],
+};
+/* 标签中→英 */
+const TAGMAP={
+ '高留白':'High whitespace','中性色':'Neutral palette','克制排版':'Restrained type','扁平质感':'Flat texture','深底':'Dark base','霓虹高对比':'Neon contrast','密集信息':'Dense info','故障质感':'Glitch texture','铬银':'Chrome silver','虹彩渐变':'Iridescent gradient','圆角气泡':'Bubbly rounded','金属光泽':'Metallic sheen','高饱和撞色':'Saturated clash','粗黑边框':'Bold black border','硬投影':'Hard shadow','张扬排版':'Loud type','网格系统':'Grid system','黑白红':'Black-white-red','严格层级':'Strict hierarchy','功能主义':'Functionalist','粉紫青渐变':'Pink-cyan gradient','复古拼贴':'Retro collage','辉光':'Glow','怀旧':'Nostalgic','单色系':'Monochrome','柔和双阴影':'Soft dual shadow','圆角凸起':'Extruded rounded','触感':'Tactile','毛玻璃模糊':'Frosted blur','半透明':'Translucent','彩色渐变底':'Gradient backdrop','景深层叠':'Layered depth','磷光绿':'Phosphor green','单色':'Single color','命令行':'Command line','CRT 扫描线':'CRT scanlines','撞色':'Color clash','几何图形':'Geometric shapes','活泼':'Playful','80年代':'80s','三原色':'Primary colors','基本几何':'Basic geometry','网格':'Grid','黑金':'Black & gold','对称':'Symmetric','几何奢华':'Geometric luxe','复古华丽':'Vintage ornate','裸HTML':'Raw HTML','默认蓝链接':'Default blue links','刻意原始':'Intentionally raw','无修饰':'Undecorated','拟真材质':'Realistic material','皮革木纹':'Leather & wood','立体高光':'3D highlights','缝线细节':'Stitch detail','明快纯色':'Bright solids','无阴影':'No shadow','清爽图标':'Crisp icons','卡片':'Cards','海拔阴影':'Elevation shadow','FAB':'FAB','品牌主色':'Brand color','卡片网格':'Card grid','纯黑底':'True black','鲜亮强调':'Vivid accent','护眼':'Eye-friendly','层级面卡':'Surface layers','马卡龙色':'Macaron colors','大圆角':'Big radius','轻盈可爱':'Light & cute','柔和':'Soft','大地色':'Earth tones','手作温暖':'Handmade warmth','花草点缀':'Floral accents','复古田园':'Cottage retro','深棕墨黑':'Deep brown-black','古典衬线':'Classic serif','学院复古':'Academic vintage','羊皮纸':'Parchment','落日渐变':'Sunset gradient','霓虹网格':'Neon grid','复古未来':'Retro-future','天蓝草绿':'Sky & grass','玻璃光泽':'Glassy gloss','清新通透':'Fresh & clear','2000年代':'2000s','衬线大标题':'Serif headlines','多栏栅格':'Multi-column grid','印刷感':'Print feel','编辑':'Editorial','密集层叠':'Dense layering','撞色堆叠':'Stacked clash','满版装饰':'Full-bleed ornament','张扬':'Bold','超大圆角':'Extra round','膨胀立体':'Puffy 3D','柔和紫粉':'Soft purple-pink','黏土质感':'Clay texture','专色叠印':'Spot overprint','半调网点':'Halftone dots','颗粒纸纹':'Grain & paper','复古印刷':'Retro print','两色调':'Duotone','强反差':'High contrast','大图处理':'Big imagery','克制':'Restrained','扁平插画':'Flat illustration','紫蓝主色':'Purple-blue','友好亲和':'Friendly','SaaS常见':'SaaS-common','网格渐变':'Mesh gradient','柔光晕':'Soft glow','深底彩光':'Dark glow','现代SaaS':'Modern SaaS','大地中性色':'Earthy neutral','细衬线':'Thin serif','极致留白':'Max whitespace','低调高级':'Understated luxe','原色高饱和':'Saturated primaries','漫画粗体':'Comic bold','黑描边':'Black outline','黄铜做旧':'Aged brass','齿轮机械':'Gears & cogs','维多利亚衬线':'Victorian serif','复古工业':'Retro-industrial','原木雪白':'Wood & white','低饱和暖':'Muted warm','宽松留白':'Airy spacing','温暖极简':'Warm minimal','侘寂大地色':'Wabi earth tones','纤细明朝':'Thin Mincho','禅意留白':'Zen negative space','手作质感':'Handmade feel','喷漆荧光':'Spray fluoro','涂鸦字':'Graffiti type','满墙拼贴':'Wall collage','街头粗粝':'Street grit','酸性荧光':'Acid fluoro','液态金属':'Liquid metal','3D扭曲':'3D distortion','高反光':'High gloss','自然绿大地':'Natural green','流动曲线':'Flowing curves','blob有机形':'Blob shapes','点阵像素':'Dot pixels','有限色板':'Limited palette','复古游戏':'Retro game','硬边网格':'Hard pixel grid','RGB错位':'RGB split','数据撕裂':'Datamosh','通道分离':'Channel split','损坏美学':'Broken aesthetic','粗黑分割线':'Bold dividers','矩形网格':'Rect grid','蒙德里安':'Mondrian','牛皮纸做旧':'Kraft aged','剪贴叠加':'Cut & paste','胶带撕纸':'Tape & tears','混排':'Mixed type','单线手绘':'Mono-line','米白留白':'Off-white space','轻盈线条':'Light lines','点缀色':'Accent pops','水墨朱砂':'Ink & cinnabar','宋体竖排':'Vertical Song','留白意境':'Negative-space mood','印章点缀':'Seal accents','原子星爆':'Atomic starburst','南瓜橙青绿':'Pumpkin & teal','圆角胶囊':'Capsule shapes','纯黑血红':'Black & blood red','哥特衬线':'Gothic serif','尖拱繁纹':'Pointed ornament','阴郁华丽':'Somber ornate','水彩暖色':'Warm watercolor','手绘插画':'Hand-drawn','纸纹铅笔':'Pencil & paper','温馨':'Cozy','复古红蓝':'Retro red-blue','板状衬线':'Slab serif','徽章绶带':'Badges & ribbons','招牌做旧':'Aged signage','深蓝数据':'Navy data','图表KPI':'Charts & KPI','卡片栅格':'Card grid','克制专业':'Clean pro','银铬高反光':'Chrome gloss','镜面高光':'Mirror highlight','未来冷感':'Cold future','红黑米':'Red-black-cream','对角动势':'Diagonal motion','超大字':'Oversized type','几何蒙太奇':'Geometric montage','彩虹撞色':'Rainbow clash','液态扭曲字':'Liquid warp type','漩涡万花筒':'Swirl kaleidoscope','迷幻':'Psychedelic','脏旧大地色':'Grimy earth','做旧撕裂':'Distressed tears','手写涂抹':'Scrawled marks','90年代':'90s','藤蔓曲线':'Vine curves','墨绿暗金':'Green & gold','花体衬线':'Ornate serif','慕夏复古':'Mucha vintage','叶绿暖金':'Leaf & gold','生态乐观':'Eco-optimist','有机科技':'Organic tech','明亮通透':'Bright & airy','糖果粉':'Candy pink','吉祥物':'Mascots','甜美可爱':'Sweet & cute','橙棕鳄梨绿':'Orange-avocado','气泡圆字':'Bubble type','条纹日落':'Striped sunset','复古暖调':'Warm retro','全息虹彩':'Holographic','珠光箔面':'Pearlescent foil','黑底彩光':'Dark + color glow','未来':'Futuristic','靛蓝朱砂':'Indigo & vermilion','木版平涂':'Woodblock flat','波浪云纹':'Wave & cloud','和风留白':'Japanese space','便当卡片格':'Bento cards','深灰鲜亮':'Dark grey + vivid','圆角分层':'Rounded layers','现代科技':'Modern tech','紫青渐变':'Purple-cyan gradient','3D光晕':'3D glow','居中大标题':'Centered headline','加密未来':'Crypto future',
+};
+function tagLabel(z){return lang==='en'?(TAGMAP[z]||z):z;}
+/* 60 风格英文内容（recipe / one / when）；中文为原生字段 */
+const I18N={
+ 'A-01':{recipe:{TYPOGRAPHY:'Sans-serif, restrained weight, big headline + lots of negative space',COLOR:'Neutral off-white / black, one restrained accent',LAYOUT:'High whitespace, strong alignment, less-is-more grid',TEXTURE:'Flat, undecorated, no shadows'},one:'Delete everything unnecessary; what remains is the answer.',when:'Premium brand sites, portfolios, reading & productivity tools, luxury, photography.'},
+ 'A-02':{recipe:{TYPOGRAPHY:'Monospace / pixel, all-caps, wide tracking, glitchy',COLOR:'Dark base + neon magenta/cyan/violet, high contrast',LAYOUT:'HUD panels, scanlines, dense data',TEXTURE:'Glow, noise, glitch, scanlines'},one:'In a neon-lit rainy night, the machines have better stories than people.',when:'Games, esports, Web3/crypto, trendy hardware, clubs & music events.'},
+ 'A-03':{recipe:{TYPOGRAPHY:'Rounded bold, metallic / jelly type',COLOR:'Chrome + iridescent gradients, mint & pink',LAYOUT:'Bubbly rounded, sticker elements, floating',TEXTURE:'Metallic gloss, iridescence, jelly highlights'},one:'The future is made of plastic — and it is shiny.',when:'Streetwear, musician pages, Gen-Z social, beauty & drinks.'},
+ 'A-04':{recipe:{TYPOGRAPHY:'Ultra-bold, mixed faces, exaggerated size contrast',COLOR:'Saturated clashing colors, pure black outlines',LAYOUT:'Hard grid, thick black borders, blunt shadows',TEXTURE:'Flat, hard edges, no gradients'},one:"I'm not trying to be pretty — I'm making you look.",when:'Creative studios, indie products, dev tools, bold DTC brands.'},
+ 'A-05':{recipe:{TYPOGRAPHY:'Helvetica-like sans, left-aligned, strict hierarchy',COLOR:'Black & white + a touch of red, extreme restraint',LAYOUT:'Mathematical grid, strong hierarchy, functionalist',TEXTURE:'Flat, print feel, no ornament'},one:'The grid is order, and order is beauty.',when:'Corporate sites, news media, design agencies, annual reports.'},
+ 'A-06':{recipe:{TYPOGRAPHY:'Serif + full-width Japanese, retro logos mixed',COLOR:'Pink-purple + cyan sunset gradient',LAYOUT:'Grid horizon, statues, palms, symmetry',TEXTURE:'Gradients, glow, VHS noise'},one:'Nostalgia for a 90s that never actually existed.',when:'Music/album visuals, art events, trendy commerce, nostalgia content.'},
+ 'A-07':{recipe:{TYPOGRAPHY:'Soft sans, low contrast, neutral',COLOR:'Monochrome grey-blue, dual-direction shadows',LAYOUT:'Rounded extruded/inset, card-based',TEXTURE:'Soft dual shadows, tactile, almost borderless'},one:'Buttons you can see but never quite touch.',when:'Music/health apps, smart-hardware consoles, light tool accents.'},
+ 'A-08':{recipe:{TYPOGRAPHY:'Light sans, bright white text',COLOR:'Colorful gradient base + translucent white glass',LAYOUT:'Stacked floating cards, depth, blurred backdrop',TEXTURE:'Frosted blur, transparency, thin highlight edge'},one:'One pane of frosted glass, and suddenly it feels premium.',when:'SaaS dashboards, fintech, music & media, login pages.'},
+ 'A-09':{recipe:{TYPOGRAPHY:'Monospace phosphor font, all-caps, blinking cursor',COLOR:'Pure black + phosphor green monochrome',LAYOUT:'Command line, ASCII frames, scanline windows',TEXTURE:'CRT scanlines, glow, pixels'},one:'Green glow flickering — like talking to a machine that thinks.',when:'Dev tools, security/geek products, AI terminals, hacker themes.'},
+ 'A-10':{recipe:{TYPOGRAPHY:'Bold geometric type, playful',COLOR:'Primary + candy clash, black accents',LAYOUT:'Scattered geometry, squiggles, casual',TEXTURE:'Flat, dots, zigzags, confetti'},one:'Confetti from the party, pinned to the wall.',when:'Kids/education, event posters, creative agencies, young brands.'},
+ 'A-11':{recipe:{TYPOGRAPHY:'Geometric sans, lowercase, industrial',COLOR:'Primary red-yellow-blue + black & white',LAYOUT:'Basic shapes (circle/square/triangle), grid, diagonals',TEXTURE:'Flat, print, functionalist'},one:'Circle, square, triangle — enough to solve any design.',when:'Design education, cultural institutions, posters, architecture & art.'},
+ 'A-12':{recipe:{TYPOGRAPHY:'High-contrast serif / geometric caps, luxe tracking',COLOR:'Black & gold, ivory, metallic sheen',LAYOUT:'Symmetric, radial, stepped geometric frames',TEXTURE:'Gold leaf, sunburst lines, luxury'},one:"Even the Great Depression couldn't dim that gilded poise.",when:'Luxury hotels, jewelry & watches, spirits, theaters, weddings.'},
+ 'A-13':{recipe:{TYPOGRAPHY:'System / Times default, raw HTML feel',COLOR:'White bg, default blue links, pure black text',LAYOUT:'No grid, left-aligned document flow, blunt',TEXTURE:'Zero decoration, default controls, deliberately raw'},one:"I can't even be bothered to write CSS — that's the statement.",when:'Indie blogs, artist pages, anti-mainstream communities, experiments.'},
+ 'A-14':{recipe:{TYPOGRAPHY:'Embossed/shadowed realistic type',COLOR:'Leather brown, wood grain, felt, real materials',LAYOUT:'Mimics real objects, stitching, highlights & shadows',TEXTURE:'Material maps, inner shadow, 3D highlights'},one:'Make the screen pretend it is a slab of real leather.',when:'Nostalgia themes, finance/notes apps, tool realism, brand throwbacks.'},
+ 'A-15':{recipe:{TYPOGRAPHY:'Geometric sans, crisp, medium weight',COLOR:'Bright solid blocks, no gradients',LAYOUT:'Simple cards, optional long shadow, crisp icons',TEXTURE:'Flat, no texture, no shadow'},one:'Drop the shadows and the world feels lighter.',when:'General web/app, enterprise products, icon systems, productivity.'},
+ 'A-16':{recipe:{TYPOGRAPHY:'Roboto-like, clear hierarchy, caps buttons',COLOR:'Brand color + accent, paper white',LAYOUT:'Cards + elevation shadow, FAB, grid',TEXTURE:'Soft shadows, ink ripple, paper metaphor'},one:'Even pixels have weight; even paper casts a shadow.',when:'Android apps, cross-platform products, enterprise tools, Google ecosystem.'},
+ 'A-17':{recipe:{TYPOGRAPHY:'Crisp sans, low-glare light-grey text',COLOR:'True/near black + one or two vivid accents',LAYOUT:'Light surface cards for hierarchy, restrained space',TEXTURE:'Subtle glow, low-contrast dividers'},one:'Turn off the lights and the important things glow.',when:'Dev tools, media/video, reading & night use, productivity apps.'},
+ 'A-18':{recipe:{TYPOGRAPHY:'Rounded sans, light weight, cute',COLOR:'Low-saturation macaron pink/mint/lilac',LAYOUT:'Big radius, roomy, soft cards',TEXTURE:'Soft, no hard edges, light shadow'},one:'Sweet as a mouthful of cream — zero aggression.',when:'Female-oriented, baby/maternity, desserts, social & journaling apps.'},
+ 'A-19':{recipe:{TYPOGRAPHY:'Handwritten / classic serif, warm',COLOR:'Earth tones, warm brown, moss, terracotta',LAYOUT:'Organic layout, floral accents, paper feel',TEXTURE:'Paper grain, watercolor, handmade'},one:'You can almost smell the bread baking through the screen.',when:'Handmade/baking, organic food, lifestyle blogs, B&Bs & farms.'},
+ 'A-20':{recipe:{TYPOGRAPHY:'Classic serif, drop caps, scholarly',COLOR:'Deep brown/ink + parchment cream, oxblood',LAYOUT:'Book-page style, decorative rules, solemn space',TEXTURE:'Old paper, leather, gilt, vignette'},one:'Inside an old library where the candles never go out.',when:'Publishing/reading, education, literary blogs, podcasts, vintage brands.'},
+ 'A-21':{recipe:{TYPOGRAPHY:'Neon-outlined italics, retro-future type',COLOR:'Sunset orange-pink + cyan neon, purple base',LAYOUT:'Perspective grid horizon, sun, scanlines',TEXTURE:'Neon glow, grid, scanlines'},one:'Flooring it into a neon sunset that never sets.',when:'Games, music/electronic, fitness, trendy hardware, retro tech.'},
+ 'A-22':{recipe:{TYPOGRAPHY:'Rounded glossy sans, fresh',COLOR:'Sky blue + grass green, lots of white, water sheen',LAYOUT:'Glossy buttons, bubbles, nature-meets-tech',TEXTURE:'Glass droplets, highlights, clean & airy'},one:'2007 tech optimism, so glossy it almost drips.',when:'Cleaning/health, eco-tech, family software, nostalgic tech brands.'},
+ 'A-23':{recipe:{TYPOGRAPHY:'High-contrast serif headlines + multi-column body',COLOR:'Paper white, ink black, a vintage red',LAYOUT:'Magazine grid, big imagery, column rules, whitespace',TEXTURE:'Print feel, fine rules, restrained'},one:'A good magazine, moved into the browser.',when:'Content media, fashion, longform & features, brand stories, portfolios.'},
+ 'A-24':{recipe:{TYPOGRAPHY:'Mixed faces, huge contrast, exaggerated',COLOR:'Saturated clashing stacks, layered gradients',LAYOUT:'Dense layering, full-bleed, heavy ornament',TEXTURE:'Pattern overlays, noise, ornate'},one:'Less is boring; more is more.',when:'Music festivals, electronic/trend, art shows, bold brand campaigns.'},
+ 'A-25':{recipe:{TYPOGRAPHY:'Rounded bold sans, friendly',COLOR:'Soft purple-pink, bright, dual shadows',LAYOUT:'Extra-round corners, puffy thick cards, 3D',TEXTURE:'Clay feel, soft inner & outer shadows, inflated 3D'},one:'Every button is plump enough to want to squish.',when:'Kids/education, fun apps, 3D-style landing pages, light brands.'},
+ 'A-26':{recipe:{TYPOGRAPHY:'Rough bold type, misregistered overprint',COLOR:'Limited spot inks (fluoro red/blue/yellow)',LAYOUT:'Overprint offset, halftone, retro print',TEXTURE:'Grain, dots, registration shift, paper'},one:"Registration off? That's exactly its soul.",when:'Indie publishing, posters, merch, art markets, trendy zines.'},
+ 'A-27':{recipe:{TYPOGRAPHY:'Clean sans, high contrast',COLOR:'Strict two-tone mapping, strong contrast',LAYOUT:'Duotone imagery, restrained layout',TEXTURE:'Duotone gradient map, flat'},one:'Two colors only — still tells the whole story.',when:'Event posters, brand campaigns, photo books, music visuals.'},
+ 'A-28':{recipe:{TYPOGRAPHY:'Friendly geometric sans, rounded',COLOR:'Purple-blue primary + warm illustration accents',LAYOUT:'Big illustration + short copy, roomy cards',TEXTURE:'Flat vector illustration, no shadow, approachable'},one:'Little purple people that melt your guard against corporate.',when:'SaaS sites, careers pages, fintech/tech, onboarding, marketing.'},
+ 'A-29':{recipe:{TYPOGRAPHY:'Light sans, white headlines',COLOR:'Dark base + soft multicolor mesh glow',LAYOUT:'Centered headline + glass cards, depth',TEXTURE:'Mesh gradient, soft glow, blur'},one:'A breathing ball of colored light, floating in the dark.',when:'AI/SaaS landing pages, tech brands, hero sections, launch pages.'},
+ 'A-30':{recipe:{TYPOGRAPHY:'Elegant thin serif, wide tracking, restrained caps',COLOR:'Beige/oat/taupe, almost no contrast',LAYOUT:'Minimal whitespace, centered symmetry, luxurious emptiness',TEXTURE:'Matte, undecorated, fine paper'},one:"True luxury is when you can't spot the logo.",when:'High-end fashion, private banking, boutique hotels, luxury goods.'},
+ 'A-31':{recipe:{TYPOGRAPHY:'Comic bold, exclamation, speech-bubble type',COLOR:'Saturated primaries, black outline, halftone',LAYOUT:'Comic panels, repeated imagery, color blocks',TEXTURE:'Ben-Day dots, thick outlines, print'},one:"The billboard's noise, framed and hung on the wall.",when:'FMCG retail, trend collabs, campaigns, youth commerce.'},
+ 'A-32':{recipe:{TYPOGRAPHY:'Victorian serif, scripts, engraved type',COLOR:'Brass, copper, leather brown, aged gold',LAYOUT:'Gears, riveted frames, gauges',TEXTURE:'Distressed metal, leather, steam, rivets'},one:'As if the Victorians had invented the internet.',when:'Games, board games/novels, escape rooms & theme parks, retro-mechanical brands.'},
+ 'A-33':{recipe:{TYPOGRAPHY:'Crisp sans, friendly, comfy spacing',COLOR:'Snow white, light wood, muted terracotta & sage',LAYOUT:'Roomy whitespace, natural proportion, warm cards',TEXTURE:'Wood, fabric, soft, warm minimal'},one:'Minimal, but with the warmth of a cup of cocoa.',when:'Home goods, lifestyle, health, baby/maternity, Nordic commerce & blogs.'},
+ 'A-34':{recipe:{TYPOGRAPHY:'Thin serif/Mincho, optional vertical, whitespace',COLOR:'Greige, clay, ink, muted earth',LAYOUT:'Asymmetric whitespace, zen, restrained',TEXTURE:'Handmade ceramic, washi paper, matte, natural'},one:'Imperfection and emptiness — the most expensive ornament.',when:'Premium tea/skincare, zen brands, galleries, boutique stays, meditation apps.'},
+ 'A-35':{recipe:{TYPOGRAPHY:'Spray graffiti type, bubble/wildstyle, drips',COLOR:'Concrete grey base + fluoro spray clash',LAYOUT:'Wall collage, stickers, tag layering',TEXTURE:'Spray grain, drips, concrete, torn stickers'},one:'This wall belongs to no one, so it belongs to everyone.',when:'Streetwear, skate/hip-hop, music labels, youth-culture events.'},
+ 'A-36':{recipe:{TYPOGRAPHY:'Liquid/stretched type, 3D metal type, distorted',COLOR:'Acid fluoro green + chrome metal + black',LAYOUT:'Warped liquid forms, 3D objects, chaos',TEXTURE:'Liquid metal, iridescence, high gloss, noise'},one:'Dangerously pretty — like you licked the highlighter.',when:'Electronic/festivals, streetwear, avant-garde design, Gen-Z experiments.'},
+ 'A-37':{recipe:{TYPOGRAPHY:'Rounded humanist sans, soft',COLOR:'Leaf green, moss, terracotta, cream',LAYOUT:'Flowing curves, blob shapes, irregular rounding',TEXTURE:'Organic curves, leaf veins, soft, natural light'},one:'Not a single straight line — because nature has none either.',when:'Eco/health, skincare, meditation & yoga, sustainable brands.'},
+ 'A-38':{recipe:{TYPOGRAPHY:'Dot-matrix pixel type, 8/16-bit, hard edges',COLOR:'Limited palette, retro console colors',LAYOUT:'Grid-aligned, tiles, status bar, HUD',TEXTURE:'Hard pixels, dithering, no anti-aliasing, scanlines'},one:'The fewest squares stealing the most memories.',when:'Indie games, retro communities, dev merch, nostalgia events.'},
+ 'A-39':{recipe:{TYPOGRAPHY:'RGB-split type, tearing, ghosting',COLOR:'Pure black + red/cyan channel split, noise',LAYOUT:'Data tearing, displaced bands, corrupted frames',TEXTURE:'RGB split, scanline shift, data corruption'},one:'An error message, beautiful enough to be an album cover.',when:'Music visuals, streetwear, esports, avant-garde tech, event KVs.'},
+ 'A-40':{recipe:{TYPOGRAPHY:'Geometric sans, strict, restrained',COLOR:'White base + primary red/yellow/blue + black lines',LAYOUT:'Thick black lines dividing rectangles, asymmetric grid',TEXTURE:'Flat, hard edges, Mondrian-like'},one:'Red, yellow, blue and a few black lines — that is modernity.',when:'Design/architecture, cultural institutions, posters, education brands.'},
+ 'A-41':{recipe:{TYPOGRAPHY:'Clipping mix, typewriter, handwritten notes',COLOR:'Kraft paper, aged print colors, retro',LAYOUT:'Cut-paste layering, tape, torn edges, casual',TEXTURE:'Torn paper, tape, distressed, layered analog'},one:'Scissors, tape and old magazines — somehow it looks premium.',when:'Indie zines, music/events, merch, personal portfolios, trend content.'},
+ 'A-42':{recipe:{TYPOGRAPHY:'Light thin sans, paired with line work',COLOR:'Off-white base, single-color line, small accents',LAYOUT:'Continuous-line illustration, lots of whitespace, light',TEXTURE:'Even line weight, minimal, hand-drawn single line'},one:'One unbroken line, drawing the whole world.',when:'Brand illustration systems, productivity/tools, healthcare, light sites.'},
+ 'A-43':{recipe:{TYPOGRAPHY:'Song/Kai serif, optional vertical, whitespace mood',COLOR:'Rice-paper cream, ink black, cinnabar red, dai green',LAYOUT:'Generous whitespace, couplet layout, seal accents',TEXTURE:'Ink wash, rice paper, seal stamp, negative space'},one:'A patch of blank, half a seal — the whole East on one page.',when:'Tea & spirits/cultural goods, cultural tourism, premium domestic brands, festival campaigns.'},
+ 'A-44':{recipe:{TYPOGRAPHY:'Retro-future bold, rounded, spacey',COLOR:'Cream base + pumpkin orange, teal, midnight blue',LAYOUT:'Boomerang/atom/starburst shapes, rounded capsules',TEXTURE:'Flat retro print, atomic motifs, optimism'},one:'This is how 1965 imagined 2026.',when:'Retro brands, dining/bars, events, toys & lifestyle.'},
+ 'A-45':{recipe:{TYPOGRAPHY:'Blackletter/sharp serif, ornate drop caps',COLOR:'Pure black, blood red, bone white, dark gold',LAYOUT:'Pointed arches, symmetry, ornate pattern, solemn',TEXTURE:'Vignette, gilt, distressed, somber luxury'},one:'The beautiful is, inevitably, also the doomed.',when:'Metal/dark music, games, perfume & beauty, niche streetwear, Halloween.'},
+ 'A-46':{recipe:{TYPOGRAPHY:'Handwritten/warm serif, friendly',COLOR:'Warm watercolor, cream, soft natural tones',LAYOUT:'Illustration-led, irregular edges, cozy cards',TEXTURE:'Watercolor wash, paper grain, pencil outline, handmade'},one:'Every screen feels like opening a bedtime story.',when:'Kids/education, baby/maternity, picture books/publishing, warm brands & nonprofits.'},
+ 'A-47':{recipe:{TYPOGRAPHY:'Slab serif/retro hand-lettering, signage feel',COLOR:'Cream + retro red, navy, mustard gold',LAYOUT:'Badges, ribbons, signage, centered symmetry',TEXTURE:'Distressed print, wear, vintage advertising'},one:'A glowing old-school diner sign.',when:'Dining/bars, streetwear, sports, retro retail, event merch.'},
+ 'A-48':{recipe:{TYPOGRAPHY:'Monospace/geometric sans, clear numbers',COLOR:'Deep navy base + blue-green data highlights, restrained',LAYOUT:'Card grid, charts, KPIs, sidebar nav',TEXTURE:'Fine grid, glowing data points, flat restraint'},one:'Makes a pile of cold numbers worth a second look.',when:'B2B SaaS, analytics/BI, fintech, monitoring & back-office systems.'},
+ 'A-49':{recipe:{TYPOGRAPHY:'Glossy 3D bold, reflective type',COLOR:'Black base + silver chrome high-gloss, cold grey gradients',LAYOUT:'Liquid chrome blobs/type, centered, futuristic',TEXTURE:'High-gloss chrome, liquid flow, mirror highlights'},one:'The future is liquid — and it reflects your face.',when:'Tech launches, streetwear, music visuals, premium hardware, AI brands.'},
+ 'A-50':{recipe:{TYPOGRAPHY:'Bold sans, diagonal layout, oversized caps',COLOR:'Red, black, cream — strong propaganda-poster feel',LAYOUT:'Dynamic diagonals, geometric blocks, photomontage',TEXTURE:'Flat, print, gritty, geometric'},one:'Every diagonal is shouting a slogan at you.',when:'Cultural events, posters, social/political themes, brands that take a stand.'},
+ 'A-51':{recipe:{TYPOGRAPHY:'Liquid warped type, hand-drawn scripts, alluring-yet-illegible',COLOR:'Saturated rainbow, complementary clash, flowing',LAYOUT:'Swirls, symmetric kaleidoscope, warped fill',TEXTURE:'Flowing gradients, bleed, 60s psychedelia'},one:'Stare a bit longer and the screen starts to breathe.',when:'Music festivals, album visuals, art shows, trippy/psych content.'},
+ 'A-52':{recipe:{TYPOGRAPHY:'Distressed bold, scrawled, torn & misaligned',COLOR:'Grimy earth tones, dark red, aged grey',LAYOUT:'Torn collage, uneven, casual layering',TEXTURE:'Scratches, ink splatter, torn paper, 90s'},one:'The more broken and worn, the more attitude.',when:'Rock/indie music, skate streetwear, youth culture, distressed posters.'},
+ 'A-53':{recipe:{TYPOGRAPHY:'Elegant ornate serif, hand-drawn drop caps',COLOR:'Deep green, antique gold, terracotta, muted vintage',LAYOUT:'Organic vine curves, symmetric floral frames, entwined',TEXTURE:'Gilt linework, floral vines, Mucha style'},one:'Let every line grow like a climbing vine.',when:'Perfume & beauty, jewelry, fine spirits, artsy brands, vintage posters.'},
+ 'A-54':{recipe:{TYPOGRAPHY:'Fresh humanist sans, optimistic & warm',COLOR:'Leaf green, gold, daylight — bright & airy',LAYOUT:'Organic curves + tech, plants woven through the UI',TEXTURE:'Soft light, foliage, glass meets greenery'},one:'Tech and plants, finally not arguing anymore.',when:'Eco/sustainability, energy tech, health, nonprofit & future narratives.'},
+ 'A-55':{recipe:{TYPOGRAPHY:'Chubby rounded type, handwriting, emoji',COLOR:'Pink, cream-yellow, sky blue — candy sweet',LAYOUT:'Mascots as the star, stickers, huge radius',TEXTURE:'Soft, blush, stars & bubbles, Sanrio-like'},one:'Cuteness is an aggressive strategy.',when:'Baby/maternity, merch, social/emoji, desserts, Gen-Z brands.'},
+ 'A-56':{recipe:{TYPOGRAPHY:'Plump bubble type, retro hand-lettered headlines',COLOR:'Pumpkin orange, mustard, avocado green, brown earth',LAYOUT:'Arcs, striped sunsets, rounded, symmetric',TEXTURE:'Flat print, warm aged tones, 70s'},one:'Everything round, warm, and gloriously retro.',when:'Dining/coffee, lifestyle, records, retro streetwear & events.'},
+ 'A-57':{recipe:{TYPOGRAPHY:'Light sans, iridescent highlight type',COLOR:'Black base + holographic rainbow gradients, pearlescent',LAYOUT:'Floating cards, foil surfaces, futuristic',TEXTURE:'Iridescent foil, flowing color, pearly high gloss'},one:'Tilt it, and it changes its whole color.',when:'Streetwear, beauty, music visuals, limited merch, tech launches.'},
+ 'A-58':{recipe:{TYPOGRAPHY:'Calligraphy/Mincho, vertical, seal signature',COLOR:'Washi cream, indigo, vermilion, ink, moss',LAYOUT:'Flat layered planes, wave & cloud motifs, whitespace',TEXTURE:'Woodblock print, flat fills, outlines, washi'},one:'A single wave, freezing the whole East in place.',when:'Tea & spirits/cultural goods, cultural tourism, premium goods, exhibitions & festivals.'},
+ 'A-59':{recipe:{TYPOGRAPHY:'Modern sans, clear hierarchy, restrained',COLOR:'Dark grey surfaces + one or two vivid accents',LAYOUT:'Rounded cards of varying sizes tiled into a bento',TEXTURE:'Soft layering, subtle glow, modern tech restraint'},one:'Everything filed neatly into its bento box.',when:'Tech product sites, launches, SaaS, portfolios & feature showcases.'},
+ 'A-60':{recipe:{TYPOGRAPHY:'Bold sans, gradient-outlined headlines',COLOR:'Dark base + saturated purple/cyan/magenta gradient glow',LAYOUT:'Centered headline, 3D objects, glowing cards',TEXTURE:'3D render, strong gradients, glow, crypto-future'},one:'Dark base plus a gradient — instant future vibe.',when:'Web3/crypto, AI, tech startups, launches & landing pages.'},
+};
+function sName(s){return lang==='en'?(s.en||s.name):s.name;}
+function sRecipe(s){return (lang==='en'&&I18N[s.id])?I18N[s.id].recipe:s.recipe;}
+function sOne(s){return (lang==='en'&&I18N[s.id])?I18N[s.id].one:exOf(s.id).one;}
+function sWhen(s){return (lang==='en'&&I18N[s.id])?I18N[s.id].when:exOf(s.id).when;}
+
 /* ===================== HELPERS ===================== */
 function lum(hex){
   if(!hex||hex[0]!=='#')return .25;
@@ -1069,7 +1181,7 @@ function mockup(cat,s,v,L0){
 let activeTag=null;
 const grid=document.getElementById('grid'),chipsEl=document.getElementById('chips'),countEl=document.getElementById('count');
 let tagsOpen=false;
-const chipBtn=t=>`<button class="chip${activeTag===t?' on':''}" onclick="pickTag('${t}')">${t}</button>`;
+const chipBtn=z=>`<button class="chip${activeTag===z?' on':''}" onclick="pickTag('${z}')">${tagLabel(z)}</button>`;
 function renderChips(){
   // collapsed top row: ALL + 高频前12
   let h=`<button class="chip${activeTag===null?' on':''}" onclick="pickTag(null)">ALL</button>`;
@@ -1080,7 +1192,7 @@ function renderChips(){
   const dr=document.getElementById('tagdrawer');
   if(dr){
     dr.className='tagdrawer'+(tagsOpen?'':' hide');
-    dr.innerHTML=`<div class="dh"><span>// FULL TAG INDEX · 点击任意标签筛选</span><b>${ALLTAGS.length} TAGS</b></div>`+
+    dr.innerHTML=`<div class="dh"><span>${lang==='en'?'// FULL TAG INDEX · click any tag to filter':'// FULL TAG INDEX · 点击任意标签筛选'}</span><b>${ALLTAGS.length} TAGS</b></div>`+
       `<div class="dchips">`+ALLTAGS.map(chipBtn).join('')+`</div>`;
   }
   const tg=document.getElementById('tagtoggle');
@@ -1104,7 +1216,7 @@ let activeLay=null;
 function renderLayChips(){
   const el=document.getElementById('laychips');if(!el)return;
   let h=`<button class="chip${activeLay===null?' on':''}" onclick="pickLay(null)">ALL</button>`;
-  LAYFILTERS.forEach(f=>{h+=`<button class="chip${activeLay===f.k?' on':''}" onclick="pickLay('${f.k}')">${f.label}</button>`;});
+  LAYFILTERS.forEach(f=>{h+=`<button class="chip${activeLay===f.k?' on':''}" onclick="pickLay('${f.k}')">${lang==='en'?LAYF_EN[f.k]:f.label}</button>`;});
   el.innerHTML=h;
 }
 function layMatch(s){const f=LAYFILTERS.find(x=>x.k===activeLay);return f?f.t(layOf(s)):true;}
@@ -1125,8 +1237,8 @@ function styleCard(s){
       <button class="favbtn${f?' on':''}" title="收藏" onclick="event.stopPropagation();toggleFav('${s.id}')">${f?'★':'☆'}</button>
       <div class="enter">ENTER ▸</div></div>
     <div class="cap"><div class="id">SUBJECT ${s.id}</div>
-      <div class="nm">${s.name} <small>${s.en}</small></div>
-      <div class="tg">› ${s.tags.slice(0,3).join(' · ')}</div></div></div>`;
+      <div class="nm">${sName(s)} <small>${lang==='en'?s.name:s.en}</small></div>
+      <div class="tg">› ${s.tags.slice(0,3).map(tagLabel).join(' · ')}</div></div></div>`;
 }
 function renderGrid(){
   const list=STYLES.filter(s=>(!activeTag||s.tags.includes(activeTag))&&layMatch(s));
@@ -1148,7 +1260,7 @@ function toggleFav(id){
   if(!listView.classList.contains('hide')) renderGrid();
   if(boardOpen) renderBoard();
   const sb=document.getElementById('savebtn'); if(sb&&curDetailId) sb.outerHTML=saveBtnHTML(curDetailId);
-  showToast(i>-1?'已从 BOARD 移除':'已加入 BOARD ★');
+  showToast(i>-1?(lang==='en'?'Removed from BOARD':'已从 BOARD 移除'):(lang==='en'?'Added to BOARD ★':'已加入 BOARD ★'));
 }
 let boardOpen=false;
 function openBoard(){boardOpen=true;listView.classList.add('hide');detailView.classList.add('hide');boardView.classList.remove('hide');renderBoard();window.scrollTo(0,0);}
@@ -1157,11 +1269,11 @@ function renderBoard(){
   const list=favs.map(byId).filter(Boolean);
   boardView.innerHTML=`
     <button class="back" onclick="closeBoard()">‹ BACK TO INDEX</button>
-    <div class="dhead"><div><div class="id">MY BOARD // 收藏夹</div>
-      <div class="nm">★ 我的风格板<small>${list.length} 个已收藏 · 点卡进入 · 再点 ★ 取消</small></div></div>
+    <div class="dhead"><div><div class="id">MY BOARD // ${lang==='en'?'FAVORITES':'收藏夹'}</div>
+      <div class="nm">${t('boardTitle')}<small>${lang==='en'?(list.length+' saved · tap a card to open · tap ★ to remove'):(list.length+' 个已收藏 · 点卡进入 · 再点 ★ 取消')}</small></div></div>
       <div style="text-align:right"><div class="id">SAVED</div><div class="stars">${list.length}</div></div></div>
     ${list.length? `<div class="grid">${list.map(styleCard).join('')}</div>`
-      : `<div class="boardempty">▢ 还没有收藏任何风格<br><span>在首页或详情页点 ☆ 把喜欢的风格存进来</span></div>`}`;
+      : `<div class="boardempty">${t('boardEmpty1')}<br><span>${t('boardEmpty2')}</span></div>`}`;
 }
 
 /* ===================== DETAIL ===================== */
@@ -1179,7 +1291,7 @@ const LAYAXES={
 function gsegEdit(axis){
   const ax=LAYAXES[axis], cur=layEdit[axis];
   const segs=ax.vals.map((val,i)=>{const q=typeof val==='string'?`'${val}'`:val;
-    return `<span class="gseg gclk${val===cur?' on':''}" onclick="setLay('${axis}',${q})">${ax.names[i]}</span>`;}).join('');
+    return `<span class="gseg gclk${val===cur?' on':''}" onclick="setLay('${axis}',${q})">${(lang==='en'?LAYAXES_EN[axis]:ax.names)[i]}</span>`;}).join('');
   return `<div class="grow"><div class="gk">${ax.label}</div><div class="gtrack">${segs}</div></div>`;
 }
 function layNarrative(L){
@@ -1192,7 +1304,7 @@ function isLayDirty(){return !!(curDetailId&&JSON.stringify(layEdit)!==JSON.stri
 function layGaugesEditable(){
   const rows=['a','sc','den','g','u'].map(gsegEdit).join('');
   return `<div class="gauges">${rows}</div>
-    <div class="laynar"><b>▸</b> <span id="laynartext">${layNarrative(layEdit)}</span></div>`;
+    <div class="laynar"><b>▸</b> <span id="laynartext">${narr(layEdit)}</span></div>`;
 }
 function setLay(axis,val){ if(!layEdit)return; layEdit[axis]=val; applyLayEdit(); }
 function resetLay(){ if(!curDetailId)return; layEdit=Object.assign({},layOf(byId(curDetailId))); applyLayEdit(); }
@@ -1206,30 +1318,31 @@ function openDetail(id){
   const s=byId(id);
   const ex=exOf(id);
   curDetailId=id; layEdit=Object.assign({},layOf(s));   // 每次进详情重置排版副本
+  const CATEN={WEB:'Web',APP:'App UI',POSTER:'Poster',PACKAGING:'Packaging'};
   detailView.innerHTML=`
     <button class="back" onclick="closeDetail()">‹ BACK TO INDEX</button>
     <div class="dhead">
       <div><div class="id">SUBJECT ${s.id} // STYLE DOSSIER</div>
-        <div class="nm">${s.name}<small>${s.en} — ${s.tagline}</small></div></div>
+        <div class="nm">${sName(s)}<small>${lang==='en'?s.name:s.en} — ${s.tagline}</small></div></div>
       <div style="text-align:right"><div class="id">MATCH CONFIDENCE</div><div class="stars">★ ★ ★</div>${saveBtnHTML(s.id)}</div></div>
-    <div class="oneliner"><span class="ol-lbl">&gt;_ ABSTRACT //</span><span class="ol-txt">「${ex.one}」</span><span class="blink" style="color:var(--green)">▮</span></div>
+    <div class="oneliner"><span class="ol-lbl">&gt;_ ABSTRACT //</span><span class="ol-txt">${lang==='en'?'"'+sOne(s)+'"':'「'+sOne(s)+'」'}</span><span class="blink" style="color:var(--green)">▮</span></div>
     <div class="cols">
       <div>
         <div class="panel dpanel recipe">
-          <div class="sectlabel">风格配方 // RECIPE <span>为什么它看起来是「${s.name}」</span></div>
-          ${Object.entries(s.recipe).map(([k,vv])=>`<div class="row"><div class="k">${k}</div><div class="v">${vv}</div></div>`).join('')}
+          <div class="sectlabel">风格配方 // RECIPE <span>${lang==='en'?('why it reads as "'+s.en+'"'):('为什么它看起来是「'+s.name+'」')}</span></div>
+          ${Object.entries(sRecipe(s)).map(([k,vv])=>`<div class="row"><div class="k">${k}</div><div class="v">${vv}</div></div>`).join('')}
         </div>
         <div class="panel dpanel">
-          <div class="sectlabel">何时使用 // WHEN TO USE <span>适合的产品 / 页面类型</span></div>
-          <div class="whenbox">${ex.when}</div>
+          <div class="sectlabel">何时使用 // WHEN TO USE <span>${t('whenuseHint')}</span></div>
+          <div class="whenbox">${sWhen(s)}</div>
         </div>
         <div class="panel dpanel">
-          <div class="sectlabel">跨品类样本 // CROSS-CATEGORY <span>点击放大 · 每类6个案例 · 随排版实时变</span></div>
+          <div class="sectlabel">跨品类样本 // CROSS-CATEGORY <span>${t('crossHint')}</span></div>
           <div class="samples">
             ${CATS.map(([c,zh])=>`
               <div class="sample" onclick="openSample('${s.id}','${c}')">
                 <div class="ent">ENTER ▸</div>
-                <div class="lbl"><span>${zh}</span><b>${c}</b></div>
+                <div class="lbl"><span>${lang==='en'?CATEN[c]:zh}</span><b>${c}</b></div>
                 <div class="mock" id="mock-${c}">${mockup(c,s,0,layEdit)}</div>
               </div>`).join('')}
           </div>
@@ -1237,25 +1350,25 @@ function openDetail(id){
       </div>
       <div>
         <div class="panel dpanel laypanel">
-          <div class="sectlabel">排版天性 // TYPESETTING DNA <span>点选即改 · 实时同步预览</span></div>
+          <div class="sectlabel">排版天性 // TYPESETTING DNA <span>${t('dnaHint')}</span></div>
           <div id="gaugebox">${layGaugesEditable()}</div>
-          <button class="layreset" id="layreset" onclick="resetLay()">↺ 还原默认</button>
+          <button class="layreset" id="layreset" onclick="resetLay()">${t('reset')}</button>
         </div>
         <div class="panel dpanel">
-          <div class="sectlabel">配色色板 // PALETTE <span>点击复制 HEX</span></div>
+          <div class="sectlabel">配色色板 // PALETTE <span>${t('paletteHint')}</span></div>
           <div class="pal">${s.pal.map(c=>`<div class="sw" style="background:${c}" onclick="copyHex(this,'${c}')">${c}</div>`).join('')}</div>
         </div>
         <div class="panel dpanel">
-          <div class="sectlabel">AI 提示词 // PROMPT <span>喂给生图/编程助手</span></div>
+          <div class="sectlabel">AI 提示词 // PROMPT <span>${t('promptHint')}</span></div>
           <div class="prompt"><button class="copybtn" onclick="copyPrompt('${s.id}')">COPY</button>${s.prompt}</div>
         </div>
         <div class="panel dpanel">
           <div class="sectlabel">多维标签 // TAGS</div>
-          <div class="adj">${s.tags.map(t=>`<span class="adjchip" style="cursor:default">${t}</span>`).join('')}</div>
+          <div class="adj">${s.tags.map(z=>`<span class="adjchip" style="cursor:default">${tagLabel(z)}</span>`).join('')}</div>
         </div>
         <div class="panel dpanel">
-          <div class="sectlabel">相邻风格 // YOU MAY ALSO LIKE <span>在风格空间里导航</span></div>
-          <div class="adj">${s.adj.map(aid=>{const a=byId(aid);return a?`<span class="adjchip" onclick="openDetail('${a.id}')">${a.name} <small>${a.en} ›</small></span>`:'';}).join('')}</div>
+          <div class="sectlabel">相邻风格 // YOU MAY ALSO LIKE <span>${t('adjHint')}</span></div>
+          <div class="adj">${s.adj.map(aid=>{const a=byId(aid);return a?`<span class="adjchip" onclick="openDetail('${a.id}')">${sName(a)} <small>${lang==='en'?a.name:a.en} ›</small></span>`:'';}).join('')}</div>
         </div>
       </div>
     </div>`;
@@ -1276,7 +1389,7 @@ function renderModal(){
     <div class="modal" onclick="if(event.target===this)closeSample()">
       <div class="box">
         <div class="mbar">
-          <div class="t">${CATZH[curCat]} <small>${s.name} · ${s.en} · SUBJECT ${s.id}</small></div>
+          <div class="t">${lang==='en'?({WEB:'Web',APP:'App UI',POSTER:'Poster',PACKAGING:'Packaging'}[curCat]):CATZH[curCat]} <small>${sName(s)} · ${lang==='en'?s.name:s.en} · SUBJECT ${s.id}</small></div>
           <button class="xbtn" onclick="closeSample()">✕ CLOSE</button>
         </div>
         <div class="bigwrap">
@@ -1286,7 +1399,7 @@ function renderModal(){
         </div>
         <div class="mfoot">
           <div class="dots">${[0,1,2,3,4,5].map(i=>`<i class="${i===curVar?'on':''}"></i>`).join('')} <span style="margin-left:8px">CASE ${curVar+1}/6</span></div>
-          <div>← / → 切换案例 · 同一风格 · 6 种排版/功能/用途</div>
+          <div>${t('modalHint')}</div>
         </div>
       </div>
     </div>`;
@@ -1334,16 +1447,10 @@ function startReadout(){
 /* typing tagline */
 function startTyping(){
   const el=document.getElementById('tw');if(!el)return;
-  const lines=[
-    'DECRYPTING AESTHETIC SIGNATURES // '+STYLES.length+' STYLES INDEXED...',
-    '你说不清想要什么风格？让眼睛先认出它。',
-    'STYLE = 一组多维标签的常见组合 // 配方 + prompt 可带走',
-    'SELECT A SUBJECT TO VIEW DOSSIER // WHEN-TO-USE · CROSS-CATEGORY · PALETTE',
-    '核心资产不是图片库，是风格说明书。',
-  ];
   let li=0,ci=0,del=false;
   (function loop(){
-    const txt=lines[li];
+    const lines=TYPING[lang];
+    const txt=lines[li%lines.length];
     el.textContent=del?txt.slice(0,ci--):txt.slice(0,ci++);
     let d=del?28:55;
     if(!del&&ci>txt.length){d=1700;del=true;}
@@ -1371,7 +1478,22 @@ function startGlitch(){
 }
 function toTop(){window.scrollTo({top:0,behavior:'smooth'});}
 window.addEventListener('scroll',()=>{const b=document.getElementById('totop');if(b)b.classList.toggle('show',(window.scrollY||document.documentElement.scrollTop)>360);});
+/* 语言切换：刷新静态文案 + 重渲染动态区 */
+function applyLang(){
+  try{document.documentElement.lang=lang;}catch(e){}
+  const set=(id,txt)=>{const e=document.getElementById(id);if(e)e.textContent=txt;};
+  set('subjn',STYLES.length);
+  set('idxHint',t('idxHint'));
+  set('fhFilter',t('fhFilter'));
+  set('fhTypeset',t('fhTypeset'));
+  set('fhTypesetHint',t('fhTypesetHint'));
+  const lb=document.getElementById('langbtn');if(lb)lb.textContent=lang==='en'?'中文':'EN';
+  const ft=document.getElementById('foot');if(ft)ft.innerHTML=t('foot1')+'<br>'+t('foot2');
+  renderChips();renderLayChips();renderGrid();
+  if(boardOpen)renderBoard();
+  else if(curDetailId&&detailView&&!detailView.classList.contains('hide'))openDetail(curDetailId);
+}
+function toggleLang(){lang=lang==='en'?'zh':'en';try{localStorage.setItem('styledex_lang',lang);}catch(e){}applyLang();}
 document.body.classList.add('fxhigh');
-var _sj=document.getElementById('subjn');if(_sj)_sj.textContent=STYLES.length;
-renderChips();renderLayChips();renderGrid();updateFavCount();startReadout();startTyping();startGlitch();
+applyLang();updateFavCount();startReadout();startTyping();startGlitch();
 </script>
