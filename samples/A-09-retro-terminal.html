@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PHOSPHOR :// the AI that lives in your shell</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#04140a;
+    --panel:#0a2616;
+    --green:#7dffb0;     /* phosphor */
+    --green-d:#2f6e4f;   /* dim */
+    --green-m:#46b078;   /* mid */
+    --white:#eaffe0;     /* highlight */
+    --glow:rgba(125,255,176,.55);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:#02080a;
+    color:var(--green);
+    font-family:"JetBrains Mono",ui-monospace,monospace;
+    font-size:15px;line-height:1.55;
+    padding:18px;
+    display:flex;
+    overflow:hidden;
+  }
+
+  /* ===== CRT screen ===== */
+  .crt{
+    position:relative;flex:1;display:flex;flex-direction:column;
+    background:
+      radial-gradient(120% 130% at 50% 50%, #061a0e 0%, #04140a 55%, #020a06 100%);
+    border-radius:16px;
+    padding:26px 30px 0;
+    overflow:hidden;
+    box-shadow:
+      inset 0 0 140px rgba(0,0,0,.85),
+      inset 0 0 60px rgba(10,40,20,.6),
+      0 0 2px rgba(125,255,176,.4),
+      0 0 70px rgba(40,255,120,.07);
+    animation:flicker 4.5s infinite steps(60);
+  }
+  @keyframes flicker{0%,100%{opacity:1}48%{opacity:.985}49%{opacity:.94}50%{opacity:.99}}
+  /* scanlines */
+  .crt::before{
+    content:"";position:absolute;inset:0;z-index:6;pointer-events:none;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 3px, rgba(0,0,0,.22) 3px);
+  }
+  /* moving beam + vignette */
+  .crt::after{
+    content:"";position:absolute;inset:0;z-index:7;pointer-events:none;
+    background:linear-gradient(180deg, rgba(125,255,176,.05), transparent 8%);
+    box-shadow:inset 0 0 160px rgba(0,0,0,.9);
+    animation:beam 7s linear infinite;
+  }
+  @keyframes beam{0%{background-position:0 -100%}100%{background-position:0 200%}}
+
+  /* window title bar */
+  .titlebar{position:relative;z-index:3;display:flex;justify-content:space-between;align-items:center;
+    border-bottom:1px solid var(--green-d);padding-bottom:10px;margin-bottom:14px;color:var(--green-m);
+    font-size:13px;letter-spacing:.08em;flex:none}
+  .titlebar .dots{letter-spacing:.2em}
+  .titlebar b{color:var(--green);text-shadow:0 0 6px var(--glow)}
+
+  /* terminal scroll area */
+  .term{position:relative;z-index:3;flex:1;overflow-y:auto;padding-right:6px}
+  .term::-webkit-scrollbar{width:8px}
+  .term::-webkit-scrollbar-thumb{background:var(--green-d);border-radius:4px}
+  .term::-webkit-scrollbar-track{background:transparent}
+
+  .line{white-space:pre-wrap;word-break:break-word;text-shadow:0 0 4px rgba(125,255,176,.35)}
+  .dim{color:var(--green-d)}
+  .mid{color:var(--green-m)}
+  .hl{color:var(--white);text-shadow:0 0 8px var(--glow)}
+  .ok{color:var(--green);text-shadow:0 0 6px var(--glow)}
+  .box{color:var(--green-m)}
+
+  .logo{font-family:"VT323",monospace;font-size:clamp(46px,11vw,104px);line-height:.86;letter-spacing:.04em;
+    color:var(--green);text-shadow:0 0 10px var(--glow),0 0 26px rgba(125,255,176,.35);margin:6px 0 2px}
+  .logo-sub{color:var(--green-m);letter-spacing:.34em;font-size:12px;margin-bottom:14px}
+
+  .spacer{height:10px}
+
+  /* command input line */
+  .cmdline{position:relative;z-index:3;display:flex;align-items:center;gap:10px;flex:none;
+    padding:12px 0 22px}
+  .cmdline .prompt{color:var(--green-m);white-space:nowrap;text-shadow:0 0 5px var(--glow)}
+  .cmdline .field{position:relative;flex:1;min-width:0}
+  .cmdline .typed{color:var(--white);text-shadow:0 0 6px var(--glow);white-space:pre}
+  .cmdline .cursor{display:inline-block;width:9px;height:1.05em;background:var(--green);vertical-align:-2px;
+    box-shadow:0 0 8px var(--glow);animation:blink 1.05s steps(1) infinite}
+  @keyframes blink{0%,50%{opacity:1}50.01%,100%{opacity:0}}
+  .cmdline input{position:absolute;inset:0;width:100%;background:transparent;border:none;outline:none;
+    color:transparent;caret-color:transparent;font:inherit;letter-spacing:inherit}
+
+  /* status bar */
+  .status{position:relative;z-index:3;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;
+    border-top:1px solid var(--green-d);padding:8px 0 4px;margin-top:auto;color:var(--green-m);font-size:12px;letter-spacing:.06em;flex:none}
+  .status .seg{display:flex;align-items:center;gap:7px}
+  .status . online{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--glow);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  .hint{color:var(--green-d)}
+  a.tlink{color:var(--white);text-decoration:underline;text-decoration-color:var(--green-d)}
+
+  /* matrix easter egg overlay */
+  #matrix{position:fixed;inset:0;z-index:50;background:#02080a;display:none}
+  #matrix.on{display:block}
+  #matrix .quit{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:51;color:var(--green);
+    font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.1em;text-shadow:0 0 8px var(--glow)}
+
+  @media(max-width:640px){
+    body{padding:8px}.crt{padding:18px 16px 0;border-radius:12px}
+    .term,.line,.cmdline{font-size:13.5px}
+  }
+</style>
+</head>
+<body>
+
+<div class="crt" id="crt">
+  <div class="titlebar">
+    <span><b>PHOSPHOR</b>://terminal&nbsp; <span class="dim">v1.0.4</span></span>
+    <span class="dots">[ _ ] [ □ ] [ × ]</span>
+  </div>
+
+  <div class="term" id="term"></div>
+
+  <div class="cmdline" id="cmdline" style="display:none">
+    <span class="prompt">phosphor@home:~$</span>
+    <span class="field">
+      <span class="typed" id="typed"></span><span class="cursor"></span>
+      <input id="input" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="terminal input" />
+    </span>
+  </div>
+
+  <div class="status">
+    <span class="seg"><span class="online"></span> ONLINE</span>
+    <span class="seg">MODEL: PHOSPHOR-1</span>
+    <span class="seg">LINK: SECURE</span>
+    <span class="seg" id="clock">--:--:--</span>
+  </div>
+</div>
+
+<div id="matrix"><canvas id="mcanvas"></canvas><div class="quit">[ 按任意键 / 点击屏幕退出 ]</div></div>
+
+<script>
+const term = document.getElementById('term');
+const cmdline = document.getElementById('cmdline');
+const input = document.getElementById('input');
+const typed = document.getElementById('typed');
+const crt = document.getElementById('crt');
+
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function print(html){
+  const div = document.createElement('div');
+  div.className = 'line';
+  div.innerHTML = html;
+  term.appendChild(div);
+  term.scrollTop = term.scrollHeight;
+  return div;
+}
+
+// ===== boot sequence =====
+const bootLines = [
+  ['PHOSPHOR BIOS v1.0.4 — (c) MMXXVI PHOSPHOR LABS', 'dim'],
+  ['', ''],
+  ['INITIALIZING PHOSPHOR CORE...............<span class="ok">[ OK ]</span>'],
+  ['MOUNTING /dev/shell......................<span class="ok">[ OK ]</span>'],
+  ['CALIBRATING CRT PHOSPHOR.................<span class="ok">[ OK ]</span>'],
+  ['LOADING LANGUAGE MODEL...................<span class="ok">[ OK ]</span>'],
+  ['ESTABLISHING SECURE LINK.................<span class="ok">[ OK ]</span>'],
+  ['NEURAL HANDSHAKE COMPLETE.', 'mid'],
+];
+
+let booted = false;
+async function boot(){
+  for(const [text, cls] of bootLines){
+    if(booted) break;
+    print(cls ? `<span class="${cls}">${text}</span>` : text);
+    await sleep(95);
+  }
+  if(!booted) await sleep(160);
+  finishBoot();
+}
+
+function finishBoot(){
+  if(booted) return;
+  booted = true;
+  term.innerHTML = '';
+  printIntro();
+  cmdline.style.display = 'flex';
+  input.focus();
+}
+
+function printIntro(){
+  print('<span class="logo">PHOSPHOR</span>');
+  print('<span class="logo-sub">THE AI THAT LIVES IN YOUR SHELL</span>');
+  print('<span class="box">┌──────────────────────────────────────────────────────────┐</span>');
+  print('<span class="box">│</span>  「绿光闪烁，像在和一台会思考的机器对话。」              <span class="box">│</span>');
+  print('<span class="box">└──────────────────────────────────────────────────────────┘</span>');
+  print('');
+  print('<span class="hl">PHOSPHOR</span> 是一个住在你终端里的 AI。不切窗口、不开浏览器——');
+  print('在命令行里直接问它、让它跑命令、改代码、查文档。绿光一闪，它就在。');
+  print('');
+  print('<span class="dim"># 它能做的三件事</span>');
+  print('  <span class="hl">ASK</span>   用人话提问，答案直接打在终端里');
+  print('  <span class="hl">RUN</span>   代你执行 shell 命令（动手前先问你一句）');
+  print('  <span class="hl">CODE</span>  读写你的代码库，改完顺手把测试跑了');
+  print('');
+  print('<span class="dim">输入 </span><span class="hl">help</span><span class="dim"> 查看全部命令，或试试 </span><span class="mid">about · install · demo · matrix</span>');
+  print('');
+}
+
+// ===== commands =====
+const commands = {
+  help(){
+    return [
+      '<span class="dim">可用命令：</span>',
+      '  <span class="hl">about</span>      这是什么',
+      '  <span class="hl">features</span>   能做什么',
+      '  <span class="hl">install</span>    怎么装上',
+      '  <span class="hl">pricing</span>    多少钱',
+      '  <span class="hl">demo</span>       看一段对话',
+      '  <span class="hl">contact</span>    找到我们',
+      '  <span class="hl">clear</span>      清屏',
+      '  <span class="hl">help</span>       这份清单',
+      '<span class="dim">  ……据说还藏了几个命令。</span>',
+    ];
+  },
+  about(){
+    return [
+      '<span class="hl">PHOSPHOR ::</span> 一个常驻终端的 AI agent。',
+      '',
+      '它不是又一个聊天网页。它是一个进程，跟你的 shell 同生共死：',
+      '看得见你的目录、读得到你的报错、接得进你的管道（<span class="mid">|</span>）。',
+      '你不必描述你的环境——它就在你的环境里。',
+      '',
+      '<span class="dim">「绿光闪烁，像在和一台会思考的机器对话。」</span>',
+    ];
+  },
+  features(){
+    return [
+      '<span class="box">┌─ CAPABILITIES ───────────────────────────────────┐</span>',
+      '<span class="box">│</span>  <span class="hl">ASK</span>   自然语言问答，秒答在当前行            <span class="box">│</span>',
+      '<span class="box">│</span>  <span class="hl">RUN</span>   生成并执行命令，危险操作二次确认      <span class="box">│</span>',
+      '<span class="box">│</span>  <span class="hl">CODE</span>  跨文件读写代码库，改完自动跑测试      <span class="box">│</span>',
+      '<span class="box">│</span>  <span class="hl">PIPE</span>  可被管道：<span class="mid">cat err.log | phosphor fix</span>  <span class="box">│</span>',
+      '<span class="box">│</span>  <span class="hl">LOCAL</span> 支持本地模型，断网照常思考          <span class="box">│</span>',
+      '<span class="box">└──────────────────────────────────────────────────┘</span>',
+    ];
+  },
+  install(){
+    return [
+      '<span class="dim"># 一行装好（macOS / Linux）</span>',
+      '  <span class="hl">curl -fsSL https://get.phosphor.sh | sh</span>',
+      '',
+      '<span class="dim"># 初始化</span>',
+      '  <span class="hl">phosphor init</span>',
+      '',
+      '<span class="dim"># 然后随便问</span>',
+      '  <span class="hl">phosphor "为什么这个端口被占用了？"</span>',
+      '',
+      '<span class="mid">已支持 zsh / bash / fish。Windows 走 WSL。</span>',
+    ];
+  },
+  pricing(){
+    return [
+      '<span class="box">┌─ PLANS ──────────────────────────────────────────┐</span>',
+      '<span class="box">│</span>  <span class="hl">FREE</span>   ¥0      本地模型，无限次，断网可用    <span class="box">│</span>',
+      '<span class="box">│</span>  <span class="hl">PRO</span>    ¥39/月  接云端大模型，长上下文        <span class="box">│</span>',
+      '<span class="box">│</span>  <span class="hl">TEAM</span>   联系    团队共享配置 + 审计日志       <span class="box">│</span>',
+      '<span class="box">└──────────────────────────────────────────────────┘</span>',
+      '<span class="dim">输入 </span><span class="hl">contact</span><span class="dim"> 咨询 TEAM 方案。</span>',
+    ];
+  },
+  demo(){
+    return [
+      '<span class="dim">$ phosphor "把这个仓库里所有 console.log 删掉"</span>',
+      '<span class="mid">PHOSPHOR ▸</span> 找到 7 处，分布在 3 个文件。预览改动？ <span class="hl">[y/N]</span>',
+      '<span class="dim">$ y</span>',
+      '<span class="mid">PHOSPHOR ▸</span> 已删除 7 处 · 已跑 <span class="hl">npm test</span> · <span class="ok">14 passed</span>',
+      '<span class="mid">PHOSPHOR ▸</span> 要我提交吗？建议信息：<span class="hl">chore: strip debug logs</span>',
+      '',
+      '<span class="dim">（以上为演示。真机请先 install。）</span>',
+    ];
+  },
+  contact(){
+    return [
+      '  GITHUB   <a class="tlink" href="#">github.com/phosphor-labs</a>',
+      '  X        <a class="tlink" href="#">@phosphor_sh</a>',
+      '  EMAIL    <a class="tlink" href="#">hey@phosphor.sh</a>',
+    ];
+  },
+  // ===== easter eggs =====
+  whoami(){ return ['<span class="hl">你</span> 是第 <span class="hl">1024</span> 位坐到这台机器前的人。', '<span class="dim">它记得每一个。</span>']; },
+  sudo(){ return ['<span class="mid">你已经有 root 了。</span>', '<span class="dim">在自己的终端里，没有上级。</span>']; },
+  hello(){ return ['<span class="hl">HELLO, HUMAN.</span> 我一直醒着。']; },
+  hi(){ return commands.hello(); },
+  ls(){ return commands.features(); },
+  coffee(){
+    return [
+      '<span class="mid">      ( (</span>',
+      '<span class="mid">       ) )</span>',
+      '<span class="hl">    ........</span>',
+      '<span class="hl">    |      |]</span>',
+      '<span class="hl">    \\      /</span>',
+      '<span class="hl">     `----\'</span>',
+      '<span class="dim">还在烧水。AI 也需要咖啡因。</span>',
+    ];
+  },
+  clear(){ term.innerHTML=''; return null; },
+  matrix(){ startMatrix(); return ['<span class="dim">wake up...</span>']; },
+};
+
+const aliases = { '?':'help', 'man':'help', 'cls':'clear', 'phosphor':'about' };
+
+function run(raw){
+  const cmd = raw.trim();
+  print(`<span class="prompt" style="color:var(--green-m)">phosphor@home:~$</span> <span class="hl">${esc(cmd)}</span>`);
+  if(cmd === '') return;
+  const key = aliases[cmd.toLowerCase().split(' ')[0]] || cmd.toLowerCase().split(' ')[0];
+  const fn = commands[key];
+  if(fn){
+    const out = fn();
+    if(out){ out.forEach(l=>print(l)); print(''); }
+  }else{
+    print(`<span class="mid">command not found:</span> ${esc(cmd)} <span class="dim">— 输入 </span><span class="hl">help</span><span class="dim"> 看看有什么</span>`);
+    print('');
+  }
+  term.scrollTop = term.scrollHeight;
+}
+
+// input handling
+let history = [], hi = -1;
+input.addEventListener('input', ()=>{ typed.textContent = input.value; });
+input.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){
+    const v = input.value;
+    if(v.trim()!=='' ){ history.push(v); }
+    hi = history.length;
+    run(v);
+    input.value=''; typed.textContent='';
+  }else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    if(hi>0){ hi--; input.value=history[hi]||''; typed.textContent=input.value; setTimeout(()=>input.setSelectionRange(input.value.length,input.value.length),0); }
+  }else if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    if(hi<history.length-1){ hi++; input.value=history[hi]||''; } else { hi=history.length; input.value=''; }
+    typed.textContent=input.value;
+  }
+});
+// keep focus / click to focus + skip boot
+crt.addEventListener('click', ()=>{ if(!booted){ finishBoot(); } else { input.focus(); } });
+document.addEventListener('keydown', (e)=>{ if(!booted){ finishBoot(); } });
+
+// clock
+function tick(){
+  const d = new Date();
+  const p = n => String(n).padStart(2,'0');
+  document.getElementById('clock').textContent = `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+setInterval(tick,1000); tick();
+
+// ===== matrix easter egg =====
+const mWrap = document.getElementById('matrix');
+const mc = document.getElementById('mcanvas');
+let mAnim = null;
+function startMatrix(){
+  mWrap.classList.add('on');
+  const ctx = mc.getContext('2d');
+  mc.width = innerWidth; mc.height = innerHeight;
+  const cols = Math.floor(mc.width/14);
+  const drops = Array(cols).fill(1);
+  const chars = 'PHOSPHOR01アイウエオカ@#$%<>=*+-アﾊﾐｷ'.split('');
+  function draw(){
+    ctx.fillStyle = 'rgba(2,8,10,0.08)';
+    ctx.fillRect(0,0,mc.width,mc.height);
+    ctx.fillStyle = '#7dffb0';
+    ctx.font = '14px JetBrains Mono, monospace';
+    for(let i=0;i<drops.length;i++){
+      const t = chars[Math.floor(Math.random()*chars.length)];
+      ctx.fillText(t, i*14, drops[i]*14);
+      if(drops[i]*14 > mc.height && Math.random()>0.975) drops[i]=0;
+      drops[i]++;
+    }
+    mAnim = requestAnimationFrame(draw);
+  }
+  draw();
+}
+function stopMatrix(){ if(mAnim) cancelAnimationFrame(mAnim); mAnim=null; mWrap.classList.remove('on'); input.focus(); }
+mWrap.addEventListener('click', stopMatrix);
+document.addEventListener('keydown', (e)=>{ if(mWrap.classList.contains('on')){ e.preventDefault(); stopMatrix(); } });
+addEventListener('resize', ()=>{ if(mc){ mc.width=innerWidth; mc.height=innerHeight; } });
+
+// go
+boot();
+</script>
+</body>
+</html>

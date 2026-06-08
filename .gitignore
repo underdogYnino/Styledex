@@ -1,26 +1,19 @@
-# OS
+# OS / editor
 .DS_Store
 Thumbs.db
-
-# Editors
+*.swp
 .vscode/
 .idea/
-*.swp
 
-# Node / tooling
+# Node
 node_modules/
 
-# Local dev backups & scratch (not part of the project history)
-*_v*_backup.html
-diag.js
+# Claude / agent — local only
+.claude/settings.local.json
+CLAUDE.md
 
-# Internal strategy / business docs — keep PRIVATE, do not publish
-Styledex_PRD.md
-docs/Styledex_API_MCP_Design.md
-docs/Styledex_validation_plan.md
-docs/Styledex_test1_consistency.html
-docs/launch.md
-docs/launch-kit.md
+# Private: strategy, marketing, backups, concept (v2), media, references
+internal/
 
-# Local reference material (screenshots / style refs) — not for the public repo
-cases/
+# scratch
+samples/_index_table.txt

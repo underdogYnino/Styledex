@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RAWKIT — the loudest UI kit on the internet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Anton&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --yellow:#ffd23f;
+    --orange:#ff5c39;
+    --ink:#1a1a1a;
+    --blue:#3a7afe;
+    --white:#ffffff;
+    --paper:#f4ecd8;
+    --shadow:#1a1a1a;
+    --b:4px;            /* border weight */
+    --off:8px;          /* hard offset shadow */
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Space Mono",monospace;
+    overflow-x:hidden;
+    /* subtle dot grid so the bg isn't a dead flat color */
+    background-image:radial-gradient(var(--ink) 1.2px, transparent 1.2px);
+    background-size:26px 26px;
+  }
+  .disp{font-family:"Archivo Black",system-ui,sans-serif;text-transform:uppercase;line-height:.92;letter-spacing:-.02em}
+  .anton{font-family:"Anton",sans-serif;text-transform:uppercase;letter-spacing:.01em}
+  a{color:inherit;text-decoration:none}
+
+  .wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+
+  /* ---------- reusable brutal pieces ---------- */
+  .box{border:var(--b) solid var(--ink);background:var(--white);box-shadow:var(--off) var(--off) 0 var(--shadow)}
+  .tag{
+    display:inline-flex;align-items:center;gap:.4em;
+    border:3px solid var(--ink);padding:6px 12px;font-size:13px;font-weight:700;
+    text-transform:uppercase;background:var(--white);box-shadow:4px 4px 0 var(--ink);
+  }
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;cursor:pointer;
+    font-family:"Archivo Black",sans-serif;text-transform:uppercase;font-size:16px;letter-spacing:.01em;
+    border:var(--b) solid var(--ink);padding:14px 26px;background:var(--yellow);color:var(--ink);
+    box-shadow:var(--off) var(--off) 0 var(--shadow);
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .btn:hover{transform:translate(-2px,-2px);box-shadow:11px 11px 0 var(--shadow)}
+  .btn:active{transform:translate(8px,8px);box-shadow:0 0 0 var(--shadow)}
+  .btn--orange{background:var(--orange);color:var(--white)}
+  .btn--blue{background:var(--blue);color:var(--white)}
+  .btn--ink{background:var(--ink);color:var(--white)}
+  .btn--ghost{background:var(--white)}
+
+  /* ---------- sticky marquee bar ---------- */
+  .strip{
+    background:var(--ink);color:var(--white);border-bottom:var(--b) solid var(--ink);
+    overflow:hidden;white-space:nowrap;font-weight:700;text-transform:uppercase;font-size:14px;
+  }
+  .strip__track{display:inline-block;padding:10px 0;animation:march 22s linear infinite}
+  .strip__track span{padding:0 26px}
+  .strip__track .dot{color:var(--orange)}
+  @keyframes march{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* ---------- nav ---------- */
+  nav{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:var(--b) solid var(--ink)}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;max-width:1240px;margin:0 auto;gap:18px}
+  .logo{display:flex;align-items:center;gap:10px;font-family:"Archivo Black",sans-serif;font-size:24px;text-transform:uppercase}
+  .logo b{background:var(--orange);color:var(--white);border:3px solid var(--ink);padding:2px 8px;box-shadow:3px 3px 0 var(--ink)}
+  .nav__links{display:flex;gap:6px;align-items:center}
+  .nav__links a{font-weight:700;text-transform:uppercase;font-size:14px;padding:8px 12px;border:3px solid transparent}
+  .nav__links a:hover{border:3px solid var(--ink);background:var(--blue);color:var(--white);box-shadow:3px 3px 0 var(--ink)}
+  .nav__cta{font-size:14px;padding:10px 18px}
+  .burger{display:none}
+
+  /* ---------- hero ---------- */
+  .hero{padding:64px 0 40px;position:relative}
+  .hero__grid{display:grid;grid-template-columns:1.25fr .75fr;gap:36px;align-items:center}
+  .hero h1{font-size:clamp(48px,8.5vw,118px)}
+  .hero h1 .hl{background:var(--blue);color:var(--white);padding:0 .12em;box-shadow:6px 6px 0 var(--ink)}
+  .hero h1 .out{-webkit-text-stroke:3px var(--ink);color:var(--paper)}
+  .hero__lead{margin-top:26px;max-width:520px;font-size:17px;line-height:1.6}
+  .hero__cta{display:flex;gap:16px;flex-wrap:wrap;margin-top:30px}
+  .hero__meta{margin-top:30px;display:flex;gap:10px;flex-wrap:wrap}
+
+  /* floating sticker on hero */
+  .sticker{
+    position:absolute;font-family:"Archivo Black",sans-serif;text-transform:uppercase;
+    background:var(--yellow);border:var(--b) solid var(--ink);padding:10px 14px;font-size:14px;
+    box-shadow:5px 5px 0 var(--ink);
+  }
+  .sticker--1{top:8px;right:2%;transform:rotate(7deg);background:var(--orange);color:#fff}
+  .sticker--2{bottom:-14px;left:36%;transform:rotate(-6deg)}
+
+  /* hero card stack (fake component preview) */
+  .preview{position:relative}
+  .pcard{padding:18px;margin-bottom:18px}
+  .pcard h4{font-family:"Archivo Black",sans-serif;text-transform:uppercase;font-size:18px;margin-bottom:8px}
+  .pcard p{font-size:13px;line-height:1.5}
+  .pcard--y{background:var(--yellow);transform:rotate(-1.5deg)}
+  .pcard--b{background:var(--blue);color:#fff;transform:rotate(1.5deg);margin-left:30px}
+  .pbar{height:14px;border:3px solid var(--ink);background:#fff;margin-top:10px;position:relative;overflow:hidden}
+  .pbar i{position:absolute;inset:0;width:66%;background:var(--orange);display:block}
+
+  /* ---------- section heading ---------- */
+  .sec{padding:70px 0;border-top:var(--b) solid var(--ink)}
+  .sec__head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:38px}
+  .sec__head h2{font-size:clamp(32px,5vw,60px)}
+  .kicker{font-weight:700;text-transform:uppercase;font-size:13px;background:var(--ink);color:#fff;padding:5px 10px;display:inline-block;margin-bottom:14px}
+
+  /* ---------- features ---------- */
+  .feat{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  .card{padding:26px;transition:transform .12s ease, box-shadow .12s ease;background:var(--white)}
+  .card:hover{transform:translate(-3px,-3px);box-shadow:12px 12px 0 var(--shadow)}
+  .card .ic{width:54px;height:54px;border:var(--b) solid var(--ink);display:grid;place-items:center;font-size:26px;margin-bottom:18px;box-shadow:4px 4px 0 var(--ink)}
+  .card h3{font-family:"Archivo Black",sans-serif;text-transform:uppercase;font-size:21px;margin-bottom:10px}
+  .card p{font-size:14px;line-height:1.6}
+  .card--y .ic{background:var(--yellow)}
+  .card--o .ic{background:var(--orange);color:#fff}
+  .card--b .ic{background:var(--blue);color:#fff}
+  .card--ink{background:var(--ink);color:#fff}
+  .card--ink .ic{background:var(--yellow);color:var(--ink);border-color:#fff}
+
+  /* ---------- stats ---------- */
+  .stats{background:var(--ink);color:#fff;border:var(--b) solid var(--ink);box-shadow:var(--off) var(--off) 0 var(--orange);display:grid;grid-template-columns:repeat(4,1fr)}
+  .stat{padding:34px 24px;border-right:var(--b) solid #fff}
+  .stat:last-child{border-right:none}
+  .stat b{font-family:"Anton",sans-serif;font-size:clamp(40px,6vw,66px);display:block;line-height:1;color:var(--yellow)}
+  .stat span{font-size:13px;text-transform:uppercase;font-weight:700;display:block;margin-top:10px;opacity:.85}
+
+  /* ---------- steps ---------- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  .step{padding:26px;position:relative;background:var(--white)}
+  .step .no{font-family:"Anton",sans-serif;font-size:64px;line-height:.8;color:var(--blue);-webkit-text-stroke:2px var(--ink)}
+  .step h3{font-family:"Archivo Black",sans-serif;text-transform:uppercase;font-size:20px;margin:14px 0 8px}
+  .step p{font-size:14px;line-height:1.6}
+
+  /* ---------- pricing ---------- */
+  .price{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;align-items:start}
+  .plan{padding:28px;background:var(--white)}
+  .plan--hot{background:var(--yellow);transform:translateY(-8px);box-shadow:12px 12px 0 var(--shadow)}
+  .plan .nm{font-family:"Archivo Black",sans-serif;text-transform:uppercase;font-size:22px}
+  .plan .pr{font-family:"Anton",sans-serif;font-size:56px;line-height:1;margin:14px 0}
+  .plan .pr small{font-family:"Space Mono",monospace;font-size:15px;font-weight:700}
+  .plan ul{list-style:none;margin:18px 0;border-top:3px solid var(--ink)}
+  .plan li{padding:10px 0;border-bottom:3px solid var(--ink);font-size:14px;display:flex;gap:8px}
+  .plan li b{color:var(--orange)}
+  .plan .btn{width:100%;justify-content:center}
+
+  /* ---------- big cta ---------- */
+  .cta{background:var(--orange);border:var(--b) solid var(--ink);box-shadow:var(--off) var(--off) 0 var(--ink);padding:56px 40px;text-align:center;color:#fff}
+  .cta h2{font-size:clamp(36px,6vw,72px)}
+  .cta p{margin:18px auto 30px;max-width:520px;font-size:16px;line-height:1.6}
+
+  /* ---------- footer ---------- */
+  footer{border-top:var(--b) solid var(--ink);background:var(--ink);color:#fff;margin-top:0}
+  .foot{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:30px;padding:54px 24px;max-width:1240px;margin:0 auto}
+  .foot h5{font-family:"Archivo Black",sans-serif;text-transform:uppercase;font-size:14px;margin-bottom:14px;color:var(--yellow)}
+  .foot a{display:block;font-size:14px;padding:4px 0;opacity:.85}
+  .foot a:hover{opacity:1;color:var(--yellow)}
+  .foot__brand .logo{color:#fff;font-size:28px}
+  .foot__brand p{font-size:13px;line-height:1.6;margin-top:14px;opacity:.8;max-width:280px}
+  .foot__bar{border-top:var(--b) solid #fff;padding:18px 24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;font-weight:700;text-transform:uppercase;max-width:1240px;margin:0 auto}
+
+  /* ---------- load reveal ---------- */
+  .reveal{opacity:0;transform:translateY(22px)}
+  .reveal.in{opacity:1;transform:none;transition:opacity .5s ease, transform .5s cubic-bezier(.2,.8,.2,1)}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:980px){
+    .hero__grid{grid-template-columns:1fr}
+    .preview{order:-1}
+    .feat,.steps,.price{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .stat:nth-child(2){border-right:none}
+    .stat{border-bottom:var(--b) solid #fff}
+    .foot{grid-template-columns:1fr 1fr}
+    .nav__links{display:none}
+    .plan--hot{transform:none}
+  }
+  @media (max-width:520px){
+    .stats{grid-template-columns:1fr}
+    .stat{border-right:none;border-bottom:var(--b) solid #fff}
+    .foot{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- marquee strip -->
+<div class="strip">
+  <div class="strip__track">
+    <span>NO GRADIENTS<i class="dot">●</i> THICK BORDERS<i class="dot">●</i> HARD SHADOWS<i class="dot">●</i> SATURATED COLORS<i class="dot">●</i> RAW · LOUD · HONEST<i class="dot">●</i> 我不装好看，我就是要你看见我<i class="dot">●</i></span>
+    <span>NO GRADIENTS<i class="dot">●</i> THICK BORDERS<i class="dot">●</i> HARD SHADOWS<i class="dot">●</i> SATURATED COLORS<i class="dot">●</i> RAW · LOUD · HONEST<i class="dot">●</i> 我不装好看，我就是要你看见我<i class="dot">●</i></span>
+  </div>
+</div>
+
+<!-- nav -->
+<nav>
+  <div class="nav">
+    <a href="#" class="logo">RAW<b>KIT</b></a>
+    <div class="nav__links">
+      <a href="#features">组件</a>
+      <a href="#how">怎么用</a>
+      <a href="#price">定价</a>
+      <a href="#">文档</a>
+    </div>
+    <a href="#price" class="btn nav__cta btn--ink">GET RAWKIT</a>
+  </div>
+</nav>
+
+<!-- hero -->
+<header class="hero">
+  <div class="wrap hero__grid">
+    <div>
+      <span class="tag reveal">★ 247 个组件 · MIT 协议</span>
+      <h1 class="disp reveal" style="margin-top:18px">
+        BUILD<br><span class="hl">LOUD.</span><br><span class="out">SHIP</span> RAW.
+      </h1>
+      <p class="hero__lead reveal">
+        全网最吵的 UI 组件库。粗黑描边、硬核投影、撞色到底，零渐变。
+        复制粘贴就能用，让你的产品在一堆温吞的 SaaS 里——一眼被看见。
+      </p>
+      <div class="hero__cta reveal">
+        <a href="#price" class="btn btn--orange">立即开始 →</a>
+        <a href="#features" class="btn btn--ghost">查看组件</a>
+      </div>
+      <div class="hero__meta reveal">
+        <span class="tag">⚡ Zero-config</span>
+        <span class="tag">◆ React / HTML</span>
+        <span class="tag">⬛ Dark ready</span>
+      </div>
+    </div>
+
+    <div class="preview reveal">
+      <span class="sticker sticker--1">100% 不装</span>
+      <span class="sticker sticker--2">SHIP IT ☞</span>
+      <div class="box pcard pcard--y">
+        <h4>Hero Block</h4>
+        <p>超大标题 + 硬投影。拖进项目即用。</p>
+        <div class="pbar"><i></i></div>
+      </div>
+      <div class="box pcard pcard--b">
+        <h4>Button Set ↗</h4>
+        <p>四种撞色按钮，按下去真的会“咔哒”。</p>
+        <div class="pbar"><i style="width:88%;background:var(--yellow)"></i></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- features -->
+<section class="sec" id="features">
+  <div class="wrap">
+    <div class="sec__head">
+      <div class="reveal">
+        <span class="kicker">// RECIPE</span>
+        <h2 class="disp">凭什么这么吵</h2>
+      </div>
+      <span class="tag reveal">每个组件都自带态度</span>
+    </div>
+
+    <div class="feat">
+      <div class="box card card--y reveal">
+        <div class="ic">▦</div>
+        <h3>粗黑边框</h3>
+        <p>4px 实心黑描边，硬边硬角。不模糊、不柔化、不退让，轮廓必须清清楚楚。</p>
+      </div>
+      <div class="box card card--o reveal">
+        <div class="ic">◧</div>
+        <h3>硬核投影</h3>
+        <p>offset shadow 零模糊，色块直接砸在背后。立体感来自位移，不靠虚化糊弄。</p>
+      </div>
+      <div class="box card card--b reveal">
+        <div class="ic">◆</div>
+        <h3>高饱和撞色</h3>
+        <p>黄橙蓝纯黑五色硬碰硬。没有渐变、没有透明度过渡，颜色就是要打架。</p>
+      </div>
+      <div class="box card card--ink reveal">
+        <div class="ic">A</div>
+        <h3>张扬排版</h3>
+        <p>超粗黑体配等宽,夸张大小对比。标题大到没礼貌,该喊就喊,绝不小声。</p>
+      </div>
+      <div class="box card card--y reveal">
+        <div class="ic">⌗</div>
+        <h3>硬网格</h3>
+        <p>一切对齐到栅格,规整中带刺。结构是裸露的,不藏布局、不修边幅。</p>
+      </div>
+      <div class="box card card--o reveal">
+        <div class="ic">⚡</div>
+        <h3>开箱即用</h3>
+        <p>复制 HTML 或 import 组件,零配置。CSS 变量统一调色,五分钟换肤。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- stats -->
+<section class="sec">
+  <div class="wrap">
+    <div class="stats reveal">
+      <div class="stat"><b>247</b><span>现成组件</span></div>
+      <div class="stat"><b>0</b><span>个渐变</span></div>
+      <div class="stat"><b>18k</b><span>GitHub Star</span></div>
+      <div class="stat"><b>5min</b><span>上手时间</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- how -->
+<section class="sec" id="how">
+  <div class="wrap">
+    <div class="sec__head">
+      <div class="reveal">
+        <span class="kicker">// WORKFLOW</span>
+        <h2 class="disp">三步上线</h2>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="box step reveal">
+        <div class="no">01</div>
+        <h3>装一下</h3>
+        <p><code>npm i rawkit</code> 或直接抄一段 HTML。没有构建配置,没有黑魔法。</p>
+      </div>
+      <div class="box step reveal">
+        <div class="no">02</div>
+        <h3>挑组件</h3>
+        <p>从 247 个里选你要的,改 CSS 变量换色。粘进项目,边框投影自动到位。</p>
+      </div>
+      <div class="box step reveal">
+        <div class="no">03</div>
+        <h3>放出去</h3>
+        <p>部署。然后看着你的落地页在信息流里被人一眼认出来。够吵就对了。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- pricing -->
+<section class="sec" id="price">
+  <div class="wrap">
+    <div class="sec__head">
+      <div class="reveal">
+        <span class="kicker">// PRICING</span>
+        <h2 class="disp">明码标价</h2>
+      </div>
+      <span class="tag reveal">不装、不绕、不藏起步价</span>
+    </div>
+
+    <div class="price">
+      <div class="box plan reveal">
+        <div class="nm">FREE</div>
+        <div class="pr">¥0<small>/forever</small></div>
+        <ul>
+          <li><b>›</b> 40 个核心组件</li>
+          <li><b>›</b> HTML / CSS 源码</li>
+          <li><b>›</b> MIT 协议</li>
+          <li><b>›</b> 社区支持</li>
+        </ul>
+        <a href="#" class="btn btn--ghost">免费开始</a>
+      </div>
+
+      <div class="box plan plan--hot reveal">
+        <span class="tag" style="background:var(--ink);color:#fff;margin-bottom:6px">★ 最划算</span>
+        <div class="nm">PRO</div>
+        <div class="pr">¥199<small>/year</small></div>
+        <ul>
+          <li><b>›</b> 全部 247 个组件</li>
+          <li><b>›</b> React + Vue 版本</li>
+          <li><b>›</b> 30+ 落地页模板</li>
+          <li><b>›</b> Figma 源文件</li>
+        </ul>
+        <a href="#" class="btn btn--orange">GET RAWKIT →</a>
+      </div>
+
+      <div class="box plan reveal">
+        <div class="nm">TEAM</div>
+        <div class="pr">¥899<small>/year</small></div>
+        <ul>
+          <li><b>›</b> Pro 全部内容</li>
+          <li><b>›</b> 无限席位</li>
+          <li><b>›</b> 私有主题定制</li>
+          <li><b>›</b> 优先支持</li>
+        </ul>
+        <a href="#" class="btn btn--blue">联系我们</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- big cta -->
+<section class="sec" style="border-bottom:var(--b) solid var(--ink)">
+  <div class="wrap">
+    <div class="cta reveal">
+      <h2 class="disp">别再做温吞的<br>SaaS 落地页了</h2>
+      <p>世界上已经有足够多的圆角、足够多的紫色渐变、足够多的“干净简约”。轮到你吵一点了。</p>
+      <a href="#price" class="btn btn--ink" style="font-size:18px">现在就放出去 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- footer -->
+<footer>
+  <div class="foot">
+    <div class="foot__brand">
+      <a href="#" class="logo">RAW<b>KIT</b></a>
+      <p>全网最吵的 UI 组件库。Raw / Loud / Honest。用粗野主义,把你的产品从信息流里拽出来。</p>
+    </div>
+    <div>
+      <h5>产品</h5>
+      <a href="#features">组件库</a>
+      <a href="#">模板</a>
+      <a href="#">Figma 套件</a>
+      <a href="#price">定价</a>
+    </div>
+    <div>
+      <h5>资源</h5>
+      <a href="#">文档</a>
+      <a href="#">更新日志</a>
+      <a href="#">GitHub</a>
+      <a href="#">许可证</a>
+    </div>
+    <div>
+      <h5>关注</h5>
+      <a href="#">X / Twitter</a>
+      <a href="#">Discord</a>
+      <a href="#">Newsletter</a>
+      <a href="#">RSS</a>
+    </div>
+  </div>
+  <div class="foot__bar">
+    <span>© 2026 RAWKIT — NO GRADIENTS ALLOWED</span>
+    <span>MADE LOUD ☆ SHIPPED RAW</span>
+  </div>
+</footer>
+
+<script>
+  // staggered reveal on load + on scroll
+  const items = [...document.querySelectorAll('.reveal')];
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach((e,i)=>{
+      if(e.isIntersecting){
+        const el = e.target;
+        const delay = (el.dataset.d ? +el.dataset.d : 0);
+        setTimeout(()=>el.classList.add('in'), delay);
+        io.unobserve(el);
+      }
+    });
+  },{threshold:.12, rootMargin:'0px 0px -40px 0px'});
+
+  // give hero items a quick stagger
+  document.querySelectorAll('.hero .reveal').forEach((el,i)=>el.dataset.d = i*90);
+  items.forEach(el=>io.observe(el));
+
+  // copy palette hex on click of any swatch-ish tag (small extra: nav click toast)
+  // (kept minimal & honest — no tracking, no fluff)
+</script>
+</body>
+</html>

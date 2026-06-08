@@ -21,7 +21,7 @@ A visual terminal for design styles — browse, recognize, and walk away with a 
 ![PRs](https://img.shields.io/badge/PRs-welcome-ff2e88?style=flat-square&labelColor=05070d)
 ![Single file](https://img.shields.io/badge/SINGLE__FILE-HTML-caffe0?style=flat-square&labelColor=05070d)
 
-[**▸ LIVE DEMO**](https://underdogynino.github.io/Styledex/) · [**▸ Add a style**](./CONTRIBUTING.md)
+[**▸ LIVE DEMO**](https://underdogynino.github.io/Styledex/) · [**▸ Gallery**](./samples/) · [**▸ Add a style**](./CONTRIBUTING.md)
 
 </div>
 
@@ -66,6 +66,7 @@ Zero dependencies, zero build. Just open [`Styledex_prototype.html`](./Styledex_
 | `Styledex_prototype.html` | Clickable prototype (single file, zero deps) |
 | `CONTRIBUTING.md` | How to contribute — mainly the 3-step "add a style" flow |
 | `index.html` | GitHub Pages entry (redirects into the prototype) |
+| `samples/` | Gallery — real generated landing pages, one per style |
 
 ## `>_` Roadmap (draft)
 

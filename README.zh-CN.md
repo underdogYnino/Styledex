@@ -21,7 +21,7 @@
 ![PRs](https://img.shields.io/badge/PRs-welcome-ff2e88?style=flat-square&labelColor=05070d)
 ![Single file](https://img.shields.io/badge/SINGLE__FILE-HTML-caffe0?style=flat-square&labelColor=05070d)
 
-[**▸ 在线 DEMO**](https://underdogynino.github.io/Styledex/) · [**▸ 贡献一个风格**](./CONTRIBUTING.md)
+[**▸ 在线 DEMO**](https://underdogynino.github.io/Styledex/) · [**▸ 真实样例画廊**](./samples/) · [**▸ 贡献一个风格**](./CONTRIBUTING.md)
 
 </div>
 
@@ -66,6 +66,7 @@ LANG    // 双语            中文 / English 一键切换
 | `Styledex_prototype.html` | 可点击原型（单文件，零依赖） |
 | `CONTRIBUTING.md` | 如何贡献，重点是「新增一个风格」的三步流程 |
 | `index.html` | GitHub Pages 入口（跳转到原型） |
+| `samples/` | 画廊 —— 每个风格一个真实落地网页样例 |
 
 ## `>_` 路线（草案）
 

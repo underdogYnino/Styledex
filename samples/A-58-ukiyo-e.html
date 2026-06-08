@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>浮世百景 — 浮世绘版画特展 · UKIYO-E THE FLOATING WORLD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;600;700;800&family=Noto+Serif+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --washi:#e6e0c8;      /* 宣纸米 */
+    --washi-d:#dcd4ba;
+    --washi-dd:#d0c8a8;
+    --indigo:#2e4a6b;     /* 靛蓝 */
+    --indigo-m:#3a5a7e;
+    --indigo-l:#5a7390;
+    --vermil:#c4583f;     /* 朱 */
+    --ink:#3a3a32;        /* 墨 */
+    --moss:#7a8a6a;       /* 苔绿 */
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--washi);
+    color:var(--ink);
+    font-family:"Noto Serif SC","Shippori Mincho B1",serif;
+    font-size:17px;line-height:1.85;font-weight:400;
+    position:relative;overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* washi paper grain */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:30;pointer-events:none;opacity:.05;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a{color:inherit;text-decoration:none}
+  .min{font-family:"Shippori Mincho B1","Noto Serif SC",serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 40px;position:relative;z-index:2}
+
+  .vrt{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:.18em}
+  .lat{font-family:"Shippori Mincho B1",serif;letter-spacing:.28em;text-transform:uppercase;font-size:12px}
+
+  /* seal stamp */
+  .seal{
+    display:inline-grid;place-items:center;width:62px;height:62px;background:var(--vermil);
+    color:var(--washi);border:1.5px solid var(--ink);border-radius:3px;transform:rotate(-4deg);
+    font-family:"Shippori Mincho B1",serif;font-weight:700;line-height:1.05;flex:none;
+    box-shadow:2px 2px 0 rgba(58,58,50,.25);
+  }
+  .seal .vrt{font-size:21px;letter-spacing:.05em}
+
+  /* buttons — flat fill, ink outline, woodblock feel */
+  .btn{
+    display:inline-flex;align-items:center;gap:12px;cursor:pointer;font-family:"Noto Serif SC",serif;font-weight:600;
+    font-size:15px;letter-spacing:.06em;padding:13px 30px;border:1.5px solid var(--ink);
+    background:var(--indigo);color:var(--washi);transition:transform .2s ease, background .3s ease;
+  }
+  .btn:hover{transform:translateY(-2px);background:#26405e}
+  .btn--vermil{background:var(--vermil)}
+  .btn--vermil:hover{background:#b04c34}
+  .btn--ghost{background:transparent;color:var(--ink)}
+  .btn--ghost:hover{background:var(--ink);color:var(--washi)}
+
+  /* top info bar */
+  .topinfo{background:var(--ink);color:var(--washi);font-size:12.5px;letter-spacing:.1em}
+  .topinfo .wrap{display:flex;justify-content:space-between;align-items:center;padding:9px 40px;flex-wrap:wrap;gap:8px}
+  .topinfo .lat{color:var(--moss)}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:25;background:rgba(230,224,200,.9);backdrop-filter:blur(6px);border-bottom:1.5px solid var(--ink)}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:24px;max-width:1180px;margin:0 auto;padding:15px 40px}
+  .brand{display:flex;align-items:baseline;gap:12px}
+  .brand .cn{font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:24px;letter-spacing:.14em}
+  .brand .en{font-size:10px;letter-spacing:.26em;color:var(--indigo)}
+  .nav__links{display:flex;gap:30px}
+  .nav__links a{font-size:15px;font-weight:500;position:relative;padding-bottom:2px}
+  .nav__links a::after{content:"";position:absolute;left:0;bottom:-2px;width:0;height:1.5px;background:var(--vermil);transition:width .3s}
+  .nav__links a:hover::after{width:100%}
+  .nav .btn{padding:9px 20px;font-size:13px}
+
+  /* ===== hero ===== */
+  .hero{position:relative;min-height:88vh;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden}
+  .hero__inner{position:relative;z-index:3;max-width:1180px;margin:0 auto;padding:78px 40px 0;width:100%;
+    display:flex;justify-content:space-between;align-items:flex-start;gap:40px}
+  .hero__left{max-width:560px}
+  .hero .lat{display:block;color:var(--indigo);margin-bottom:24px}
+  .hero h1{font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:clamp(58px,11vw,150px);line-height:.96;letter-spacing:.06em;color:var(--ink)}
+  .hero h1 .v{color:var(--vermil)}
+  .hero__abstract{font-family:"Shippori Mincho B1",serif;font-size:clamp(20px,2.8vw,30px);font-weight:600;margin-top:28px;line-height:1.5;color:var(--indigo)}
+  .hero__meta{margin-top:30px;font-size:15px;line-height:2;color:var(--ink)}
+  .hero__meta b{font-weight:600;color:var(--vermil)}
+  .hero__cta{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap}
+  /* vertical title + seal */
+  .hero__right{display:flex;gap:18px;align-items:flex-start;padding-top:6px}
+  .hero__vtitle{font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:clamp(26px,3.4vw,40px);letter-spacing:.22em;color:var(--ink)}
+  /* the great wave svg */
+  .wave-wrap{position:absolute;left:0;right:0;bottom:-2px;z-index:1;pointer-events:none}
+  .wave-wrap svg{width:100%;height:auto;display:block}
+  .sun{animation:float 9s ease-in-out infinite}
+  .layer-far{animation:float 11s ease-in-out infinite}
+  .layer-mid{animation:float 8s ease-in-out infinite reverse}
+  .layer-near{animation:float 7s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  @media(max-width:860px){
+    .hero__inner{flex-direction:column;padding-top:54px}
+    .hero__right{order:-1}
+  }
+
+  /* cloud divider */
+  .cloud-div{display:block;width:100%;height:46px;color:var(--washi-dd)}
+  .cloud-div svg{width:100%;height:100%}
+
+  /* section base */
+  .sec{padding:96px 0;position:relative}
+  .sec__head{margin-bottom:54px;max-width:720px}
+  .sec__head .num{font-family:"Shippori Mincho B1",serif;color:var(--vermil);font-size:14px;letter-spacing:.3em;display:block;margin-bottom:12px}
+  .sec__head h2{font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:clamp(32px,5vw,56px);letter-spacing:.08em;line-height:1.1}
+  .sec__head p{margin-top:18px;color:#54544a}
+
+  /* intro — calligraphic big quote, lots of negative space */
+  .intro{text-align:center;border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);background:var(--washi-d)}
+  .intro .wrap{max-width:860px}
+  .intro .lead{font-family:"Shippori Mincho B1",serif;font-weight:600;font-size:clamp(22px,3.6vw,38px);line-height:1.7;letter-spacing:.04em}
+  .intro .lead .ink{color:var(--indigo)}
+  .intro .lead .v{color:var(--vermil)}
+  .intro .sig{margin-top:34px;display:inline-flex;align-items:center;gap:16px;color:#54544a;font-size:14px;letter-spacing:.1em}
+  .intro .sig .ln{width:46px;height:1px;background:var(--ink);opacity:.4}
+
+  /* exhibit zones */
+  .zones{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border:1.5px solid var(--ink)}
+  .zone{padding:42px 38px;border-right:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);position:relative;overflow:hidden;transition:background .4s;background:var(--washi)}
+  .zone:nth-child(2n){border-right:none}
+  .zone:nth-child(3),.zone:nth-child(4){border-bottom:none}
+  .zone:hover{background:var(--washi-d)}
+  .zone .z-num{font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:15px;letter-spacing:.2em;color:#8a8a7a}
+  .zone h3{font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:30px;letter-spacing:.1em;margin:10px 0 12px;display:flex;align-items:center;gap:14px}
+  .zone h3 .chip{width:26px;height:26px;border:1.5px solid var(--ink);flex:none}
+  .zone p{font-size:15px;color:#54544a;max-width:420px}
+  .zone .c-indigo{background:var(--indigo)} .zone .c-vermil{background:var(--vermil)}
+  .zone .c-moss{background:var(--moss)} .zone .c-ink{background:var(--ink)}
+  .zone .deco{position:absolute;right:-30px;bottom:-30px;width:130px;height:130px;opacity:.12}
+
+  /* featured works */
+  .works{display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+  .work{}
+  .work__art{aspect-ratio:3/4;border:1.5px solid var(--ink);overflow:hidden;background:var(--washi-d)}
+  .work__art svg{width:100%;height:100%;display:block}
+  .work__cap{padding-top:16px}
+  .work__cap .t{font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:21px;letter-spacing:.04em}
+  .work__cap .meta{font-size:13px;color:#6a6a5e;margin-top:5px;letter-spacing:.06em}
+  .work__cap .seal-s{display:inline-block;margin-top:10px;font-family:"Shippori Mincho B1",serif;font-size:12px;color:var(--vermil);border:1px solid var(--vermil);padding:2px 7px;letter-spacing:.1em}
+
+  /* visit / tickets */
+  .visit{background:var(--indigo);color:var(--washi);border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
+  .visit .sec__head h2,.visit .sec__head .num{color:var(--washi)}
+  .visit .sec__head .num{color:#aebfd0}
+  .visit-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:60px}
+  .info-rows{}
+  .info-row{display:flex;justify-content:space-between;gap:20px;padding:18px 0;border-bottom:1px solid rgba(230,224,200,.25)}
+  .info-row:first-child{border-top:1px solid rgba(230,224,200,.25)}
+  .info-row .k{font-family:"Shippori Mincho B1",serif;font-size:15px;letter-spacing:.1em;color:#cdd8e4}
+  .info-row .v{text-align:right;font-size:15px;line-height:1.7}
+  .tickets{display:flex;flex-direction:column;gap:14px}
+  .ticket{border:1.5px solid var(--washi);padding:20px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;transition:background .3s}
+  .ticket:hover{background:rgba(230,224,200,.08)}
+  .ticket.feat{background:var(--vermil);border-color:var(--vermil)}
+  .ticket .nm{font-family:"Shippori Mincho B1",serif;font-size:19px;letter-spacing:.06em}
+  .ticket .nm small{display:block;font-family:"Noto Serif SC";font-size:12px;color:#cdd8e4;letter-spacing:.04em;font-weight:300;margin-top:2px}
+  .ticket.feat .nm small{color:rgba(255,255,255,.8)}
+  .ticket .pr{font-family:"Shippori Mincho B1",serif;font-size:26px;white-space:nowrap}
+  .ticket .pr small{font-size:13px}
+
+  /* events */
+  .events{display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+  .event{border-left:3px solid var(--vermil);padding:6px 0 6px 22px}
+  .event .d{font-family:"Shippori Mincho B1",serif;font-size:14px;color:var(--vermil);letter-spacing:.1em}
+  .event h4{font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:21px;margin:8px 0 8px;letter-spacing:.04em}
+  .event p{font-size:14px;color:#54544a}
+
+  /* big cta */
+  .cta{text-align:center;padding:110px 0;position:relative;background:var(--washi-d);border-top:1.5px solid var(--ink)}
+  .cta .seal{margin:0 auto 28px}
+  .cta h2{font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:clamp(34px,6vw,72px);letter-spacing:.08em;line-height:1.1}
+  .cta h2 .v{color:var(--vermil)}
+  .cta p{max-width:480px;margin:20px auto 36px;color:#54544a}
+
+  /* footer */
+  footer{background:var(--ink);color:var(--washi);padding:60px 0 0}
+  .foot{display:grid;grid-template-columns:1.8fr 1fr 1fr;gap:44px}
+  .foot__brand .cn{font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:26px;letter-spacing:.14em}
+  .foot__brand .en{font-size:10px;letter-spacing:.26em;color:var(--moss);margin-top:6px;display:block}
+  .foot__brand p{font-size:14px;color:#bdbdae;margin-top:16px;max-width:320px;line-height:1.8}
+  .foot h5{font-family:"Shippori Mincho B1",serif;font-size:14px;letter-spacing:.14em;margin-bottom:16px;color:var(--moss)}
+  .foot a,.foot .li{display:block;font-size:14px;padding:5px 0;color:#bdbdae}
+  .foot a:hover{color:var(--vermil)}
+  .colophon{margin-top:50px;border-top:1px solid rgba(230,224,200,.2);padding:20px 40px 30px;max-width:1180px;margin-left:auto;margin-right:auto;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12px;letter-spacing:.08em;color:#8a8a7e}
+
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .9s ease, transform 1s cubic-bezier(.2,.8,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:860px){
+    .zones{grid-template-columns:1fr}
+    .zone{border-right:none!important}
+    .zone:nth-child(3){border-bottom:1.5px solid var(--ink)}
+    .works,.events{grid-template-columns:1fr}
+    .visit-grid{grid-template-columns:1fr;gap:36px}
+    .foot{grid-template-columns:1fr 1fr}
+    .nav__links{display:none}
+  }
+  @media(max-width:680px){.wrap,.nav,.colophon,.topinfo .wrap,.hero__inner{padding-left:22px;padding-right:22px}.foot{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- top info -->
+<div class="topinfo">
+  <div class="wrap">
+    <span>会期 · 2026.09.20 — 12.14　|　东方版画美术馆 · 三号展厅</span>
+    <span class="lat">SUBJECT A-58 / UKIYO-E</span>
+  </div>
+</div>
+
+<!-- nav -->
+<nav>
+  <div class="nav">
+    <a href="#" class="brand">
+      <span class="cn min">浮世百景</span>
+      <span class="en">UKIYO-E · THE FLOATING WORLD</span>
+    </a>
+    <div class="nav__links">
+      <a href="#intro">展览</a>
+      <a href="#zones">展区</a>
+      <a href="#works">名作</a>
+      <a href="#visit">参观</a>
+      <a href="#events">活动</a>
+    </div>
+    <a href="#visit" class="btn btn--vermil">购 票</a>
+  </div>
+</nav>
+
+<!-- hero -->
+<header class="hero">
+  <div class="hero__inner">
+    <div class="hero__left">
+      <span class="lat">葛饰北斋 · 歌川广重 · 喜多川歌麿　名品特展</span>
+      <h1 class="min">浮世<span class="v">百</span>景</h1>
+      <p class="hero__abstract">「一朵浪花，<br>定格了整个东方。」</p>
+      <div class="hero__meta">
+        <div>会期 · <b>2026.09.20 — 12.14</b></div>
+        <div>地点 · 东方版画美术馆　三号展厅</div>
+      </div>
+      <div class="hero__cta">
+        <a href="#visit" class="btn btn--vermil">即刻购票 →</a>
+        <a href="#intro" class="btn btn--ghost">展览简介</a>
+      </div>
+    </div>
+    <div class="hero__right">
+      <div class="hero__vtitle vrt min">江户百景・浪花里的东方</div>
+      <div class="seal"><span class="vrt">浮世</span></div>
+    </div>
+  </div>
+
+  <!-- The Great Wave (layered flat planes) -->
+  <div class="wave-wrap" aria-hidden="true">
+    <svg viewBox="0 0 1200 420" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+      <!-- vermilion sun -->
+      <circle class="sun" cx="930" cy="120" r="58" fill="#c4583f" stroke="#3a3a32" stroke-width="2"/>
+      <!-- distant Mt. Fuji -->
+      <g class="layer-far">
+        <path d="M540,300 L660,150 L780,300 Z" fill="#5a7390" stroke="#3a3a32" stroke-width="2"/>
+        <path d="M624,194 L660,150 L696,194 L678,206 L660,196 L642,206 Z" fill="#e6e0c8" stroke="#3a3a32" stroke-width="1.5"/>
+      </g>
+      <!-- far wave -->
+      <path class="layer-far" d="M0,420 L0,300 C120,250 240,330 360,290 C470,254 520,200 620,224 C700,243 720,300 820,288 C920,276 960,224 1060,250 C1130,268 1170,300 1200,290 L1200,420 Z" fill="#5a7390" stroke="#3a3a32" stroke-width="2"/>
+      <!-- mid wave -->
+      <path class="layer-mid" d="M0,420 L0,330 C140,290 250,360 380,322 C480,293 540,236 650,262 C740,283 760,340 870,326 C980,312 1020,266 1130,292 C1170,302 1190,320 1200,316 L1200,420 Z" fill="#3a5a7e" stroke="#3a3a32" stroke-width="2"/>
+      <!-- near great wave with claws -->
+      <g class="layer-near">
+        <path d="M0,420 L0,360
+                 C70,344 120,300 150,250
+                 C175,208 150,150 210,140
+                 C250,133 262,176 300,178
+                 C266,150 300,108 250,92
+                 C210,80 150,96 110,150
+                 C150,90 230,58 300,84
+                 C360,106 372,168 420,184
+                 C470,200 520,150 560,196
+                 C540,176 556,150 588,158
+                 C620,166 612,204 656,210
+                 C760,224 820,300 980,300
+                 C1080,300 1140,330 1200,318
+                 L1200,420 Z" fill="#2e4a6b" stroke="#3a3a32" stroke-width="2.5"/>
+        <!-- foam dots -->
+        <g fill="#e6e0c8" stroke="#3a3a32" stroke-width="1.4">
+          <circle cx="246" cy="110" r="9"/><circle cx="284" cy="96" r="7"/>
+          <circle cx="218" cy="150" r="8"/><circle cx="320" cy="120" r="6"/>
+          <circle cx="180" cy="186" r="7"/><circle cx="404" cy="176" r="9"/>
+          <circle cx="450" cy="158" r="6"/><circle cx="540" cy="178" r="6"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+</header>
+
+<!-- cloud divider -->
+<div class="cloud-div" aria-hidden="true">
+  <svg viewBox="0 0 1200 46" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,40 C60,40 60,16 130,16 C200,16 200,40 280,40 C360,40 360,18 440,18 C520,18 520,40 600,40 C680,40 680,16 760,16 C840,16 840,40 920,40 C1000,40 1000,18 1080,18 C1160,18 1160,40 1200,40 L1200,46 L0,46 Z" fill="currentColor"/>
+  </svg>
+</div>
+
+<!-- intro -->
+<section class="sec intro" id="intro">
+  <div class="wrap reveal">
+    <p class="lead min">浮世，是<span class="v">转瞬即逝的当下</span>。<br>江户的画师以一块木版、寥寥数色，<br>把<span class="ink">浪、富士、役者与美人</span>，<br>定格成永恒的一瞬。</p>
+    <div class="sig"><span class="ln"></span>本次特展精选名品一百二十件<span class="ln"></span></div>
+  </div>
+</section>
+
+<!-- zones -->
+<section class="sec" id="zones">
+  <div class="wrap">
+    <div class="sec__head reveal">
+      <span class="num">其一 · 展区导览</span>
+      <h2 class="min">五景，<br>一座浮世</h2>
+      <p>展览依江户浮世绘的经典母题分作五景。沿动线缓行，由怒涛入名山，再至人间百态。</p>
+    </div>
+    <div class="zones reveal">
+      <div class="zone">
+        <span class="z-num">一の景</span>
+        <h3 class="min"><span class="chip c-indigo"></span>怒涛</h3>
+        <p>以《神奈川冲浪裏》为首的海与浪。靛蓝平涂层层叠起，爪状浪沫定格了水的瞬间形态。</p>
+        <svg class="deco" viewBox="0 0 100 100"><path d="M5,80 C25,40 45,90 65,55 C80,30 95,60 95,60" fill="none" stroke="#2e4a6b" stroke-width="6"/></svg>
+      </div>
+      <div class="zone">
+        <span class="z-num">二の景</span>
+        <h3 class="min"><span class="chip c-moss"></span>名山</h3>
+        <p>《富岳三十六景》中的赤富士与远岳。木版的平面分层，让山以最简的轮廓立于天地之间。</p>
+        <svg class="deco" viewBox="0 0 100 100"><path d="M15,85 L50,25 L85,85 Z" fill="#7a8a6a"/></svg>
+      </div>
+      <div class="zone">
+        <span class="z-num">三の景</span>
+        <h3 class="min"><span class="chip c-vermil"></span>役者</h3>
+        <p>歌舞伎役者绘。夸张的姿态与朱红妆面，是江户剧场最炽烈的一帧定格。</p>
+        <svg class="deco" viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="#c4583f"/></svg>
+      </div>
+      <div class="zone">
+        <span class="z-num">四の景</span>
+        <h3 class="min"><span class="chip c-ink"></span>美人</h3>
+        <p>喜多川歌麿的美人画。细若游丝的轮廓线与大面积留白，勾出江户的风雅与含蓄。</p>
+        <svg class="deco" viewBox="0 0 100 100"><path d="M50,10 C30,40 30,70 50,90 C70,70 70,40 50,10 Z" fill="#3a3a32"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- featured works -->
+<section class="sec" id="works" style="background:var(--washi-d);border-top:1.5px solid var(--ink)">
+  <div class="wrap">
+    <div class="sec__head reveal">
+      <span class="num">其二 · 必看名作</span>
+      <h2 class="min">四帧不朽</h2>
+    </div>
+    <div class="works reveal">
+      <div class="work">
+        <div class="work__art">
+          <svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="400" fill="#e6e0c8"/>
+            <circle cx="225" cy="95" r="34" fill="#c4583f" stroke="#3a3a32" stroke-width="2"/>
+            <path d="M0,400 L0,250 C60,210 120,290 180,250 C240,212 260,170 300,196 L300,400 Z" fill="#5a7390" stroke="#3a3a32" stroke-width="2"/>
+            <path d="M0,400 L0,300 C50,270 90,320 130,250 C155,206 130,160 180,160 C215,160 220,210 270,220 C290,224 300,236 300,236 L300,400 Z" fill="#2e4a6b" stroke="#3a3a32" stroke-width="2.5"/>
+            <g fill="#e6e0c8" stroke="#3a3a32" stroke-width="1.3"><circle cx="150" cy="186" r="8"/><circle cx="178" cy="172" r="6"/><circle cx="124" cy="214" r="6"/></g>
+          </svg>
+        </div>
+        <div class="work__cap">
+          <div class="t min">神奈川冲浪裏</div>
+          <div class="meta">葛饰北斋 · 约 1831 · 锦绘</div>
+          <span class="seal-s">展品 No.01</span>
+        </div>
+      </div>
+      <div class="work">
+        <div class="work__art">
+          <svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="400" fill="#dcd4ba"/>
+            <rect y="0" width="300" height="120" fill="#5a7390"/>
+            <path d="M40,300 L150,110 L260,300 Z" fill="#c4583f" stroke="#3a3a32" stroke-width="2.5"/>
+            <path d="M118,162 L150,110 L182,162 L165,176 L150,166 L135,176 Z" fill="#e6e0c8" stroke="#3a3a32" stroke-width="1.5"/>
+            <rect y="300" width="300" height="100" fill="#7a8a6a"/>
+          </svg>
+        </div>
+        <div class="work__cap">
+          <div class="t min">凯风快晴（赤富士）</div>
+          <div class="meta">葛饰北斋 · 约 1831 · 锦绘</div>
+          <span class="seal-s">展品 No.02</span>
+        </div>
+      </div>
+      <div class="work">
+        <div class="work__art">
+          <svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="400" fill="#cfc7a6"/>
+            <g stroke="#3a3a32" stroke-width="2"><line x1="0" y1="60" x2="300" y2="20"/><line x1="0" y1="120" x2="300" y2="80"/></g>
+            <g stroke="#2e4a6b" stroke-width="2.5">
+              <line x1="40" y1="0" x2="90" y2="400"/><line x1="120" y1="0" x2="160" y2="400"/>
+              <line x1="200" y1="0" x2="230" y2="400"/><line x1="270" y1="0" x2="290" y2="400"/>
+            </g>
+            <ellipse cx="150" cy="320" rx="70" ry="22" fill="#3a3a32"/>
+          </svg>
+        </div>
+        <div class="work__cap">
+          <div class="t min">大桥骤雨</div>
+          <div class="meta">歌川广重 · 约 1857 · 锦绘</div>
+          <span class="seal-s">展品 No.03</span>
+        </div>
+      </div>
+      <div class="work">
+        <div class="work__art">
+          <svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="400" fill="#e6e0c8"/>
+            <path d="M150,70 C95,130 95,250 150,330 C205,250 205,130 150,70 Z" fill="#2e4a6b" stroke="#3a3a32" stroke-width="2.5"/>
+            <circle cx="150" cy="150" r="34" fill="#e6e0c8" stroke="#3a3a32" stroke-width="2"/>
+            <path d="M150,120 C168,134 168,162 150,176 C132,162 132,134 150,120 Z" fill="#c4583f"/>
+          </svg>
+        </div>
+        <div class="work__cap">
+          <div class="t min">江户美人</div>
+          <div class="meta">喜多川歌麿 · 约 1793 · 大首绘</div>
+          <span class="seal-s">展品 No.04</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- visit / tickets -->
+<section class="sec visit" id="visit">
+  <div class="wrap">
+    <div class="sec__head reveal">
+      <span class="num">其三 · 参观信息</span>
+      <h2 class="min">入场与票务</h2>
+    </div>
+    <div class="visit-grid">
+      <div class="info-rows reveal">
+        <div class="info-row"><span class="k">会期</span><span class="v">2026.09.20 — 12.14<br>逢周一闭馆（节假日除外）</span></div>
+        <div class="info-row"><span class="k">开放时间</span><span class="v">10:00 — 18:00<br>17:30 停止入场</span></div>
+        <div class="info-row"><span class="k">地点</span><span class="v">东方版画美术馆<br>三号展厅 · B1 特展区</span></div>
+        <div class="info-row"><span class="k">交通</span><span class="v">地铁 4 号线「美术馆站」<br>B 口步行约 6 分钟</span></div>
+        <div class="info-row"><span class="k">导览</span><span class="v">每日 14:00 / 16:00<br>策展人专场需预约</span></div>
+      </div>
+      <div class="tickets reveal">
+        <div class="ticket"><div class="nm min">标准票<small>单人单次入场</small></div><div class="pr min">¥120</div></div>
+        <div class="ticket"><div class="nm min">优待票<small>学生 / 长者 / 凭证</small></div><div class="pr min">¥80</div></div>
+        <div class="ticket feat"><div class="nm min">夜场导览套票<small>含策展人导览 + 图录</small></div><div class="pr min">¥180</div></div>
+        <a href="#" class="btn btn--vermil" style="justify-content:center;border-color:var(--washi)">前往购票 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- events -->
+<section class="sec" id="events">
+  <div class="wrap">
+    <div class="sec__head reveal">
+      <span class="num">其四 · 同期活动</span>
+      <h2 class="min">不只是看画</h2>
+    </div>
+    <div class="events reveal">
+      <div class="event">
+        <span class="d min">09.27 周六</span>
+        <h4 class="min">木版拓印工作坊</h4>
+        <p>亲手套印一幅小景浪花，体会江户画师「一版一色」的耐心。材料费另计，限 20 名。</p>
+      </div>
+      <div class="event">
+        <span class="d min">10.18 周六</span>
+        <h4 class="min">策展人夜话</h4>
+        <p>围绕北斋的「浪」，讲述一块木版如何定格水的瞬间。闭馆后专场，凭夜场票入。</p>
+      </div>
+      <div class="event">
+        <span class="d min">11.08 周六</span>
+        <h4 class="min">和风茶席</h4>
+        <p>于展厅外厅设茶席一处。看画之后，以一碗薄茶，品「浮世」二字的余味。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- cta -->
+<section class="cta">
+  <div class="wrap reveal">
+    <div class="seal"><span class="vrt">百景</span></div>
+    <h2 class="min">趁这朵浪，<br>还<span class="v">没有落下</span></h2>
+    <p>会期有限，名作不常出。择一日，来看江户人如何把转瞬，刻成永恒。</p>
+    <a href="#visit" class="btn btn--vermil">即刻购票 →</a>
+  </div>
+</section>
+
+<!-- footer -->
+<footer>
+  <div class="wrap foot">
+    <div class="foot__brand">
+      <span class="cn min">浮世百景</span>
+      <span class="en">UKIYO-E · THE FLOATING WORLD</span>
+      <p>一场关于「转瞬」的版画特展。以木版、平涂、轮廓线与和纸，重访江户的浪、富士与人间。</p>
+    </div>
+    <div>
+      <h5 class="min">观展</h5>
+      <a href="#intro">展览简介</a>
+      <a href="#zones">展区导览</a>
+      <a href="#works">必看名作</a>
+      <a href="#visit">参观信息</a>
+    </div>
+    <div>
+      <h5 class="min">联络</h5>
+      <span class="li">东方版画美术馆</span>
+      <span class="li">tel · 010-0000-0000</span>
+      <a href="#">团体预约</a>
+      <a href="#">无障碍服务</a>
+    </div>
+  </div>
+  <div class="colophon">
+    <span>所示作品图样为风格化示意 · 非原作扫描</span>
+    <span>© MMXXVI 浮世百景特展 · 平涂・轮廓・和纸</span>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12,rootMargin:'0px 0px -50px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

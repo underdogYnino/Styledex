@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RUST — BEAUTIFULLY WRECKED / 越破越旧，越有态度</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&family=Special+Elite&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#1c1b18;
+    --rust:#b3402e;
+    --grey:#7a7466;
+    --paper:#d8d2c4;
+    --brown:#2e2a22;
+    --paper-d:#c4bda9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--black);
+    color:var(--paper);
+    font-family:"Special Elite","Noto Sans SC",monospace;
+    font-size:16px;line-height:1.7;
+    position:relative;overflow-x:hidden;
+  }
+  /* global grunge grain */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.08;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  /* faint scratches */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.14;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800'%3E%3Cg stroke='%23d8d2c4' stroke-width='1' opacity='0.6'%3E%3Cline x1='60' y1='10' x2='90' y2='760'/%3E%3Cline x1='320' y1='0' x2='300' y2='800'/%3E%3Cline x1='600' y1='40' x2='640' y2='790'/%3E%3Cline x1='10' y1='200' x2='790' y2='180'/%3E%3Cline x1='0' y1='540' x2='800' y2='580'/%3E%3C/g%3E%3C/svg%3E");
+    background-size:cover;mix-blend-mode:overlay;
+  }
+  a{color:inherit;text-decoration:none}
+  .anton{font-family:"Anton",sans-serif;text-transform:uppercase;letter-spacing:.01em}
+  .marker{font-family:"Permanent Marker",cursive}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;position:relative;z-index:3}
+
+  /* torn paper edges */
+  .torn{clip-path:polygon(0% 6%,4% 2%,9% 6%,15% 1%,22% 5%,29% 0%,37% 5%,45% 1%,53% 6%,61% 1%,69% 5%,77% 0%,85% 5%,92% 1%,98% 5%,100% 9%,99% 92%,95% 98%,88% 94%,80% 99%,72% 94%,64% 99%,55% 94%,47% 99%,39% 94%,31% 99%,23% 94%,15% 99%,8% 94%,3% 98%,0% 91%)}
+  .tape{position:absolute;width:96px;height:30px;background:rgba(216,210,196,.42);
+    box-shadow:0 2px 5px rgba(0,0,0,.4);transform:rotate(-7deg);z-index:6;mix-blend-mode:screen;
+    border-left:1px dashed rgba(0,0,0,.15);border-right:1px dashed rgba(0,0,0,.15)}
+  .tape.r{transform:rotate(6deg)}
+
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-family:"Anton",sans-serif;
+    text-transform:uppercase;font-size:18px;letter-spacing:.04em;padding:13px 26px;
+    background:var(--rust);color:var(--paper);border:none;transform:rotate(-1deg);
+    transition:transform .12s ease, background .2s}
+  .btn:hover{transform:rotate(0) scale(1.03);background:#c44a36}
+  .btn--ghost{background:transparent;border:2px solid var(--paper);color:var(--paper)}
+  .btn--ghost:hover{background:var(--paper);color:var(--black)}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:40;background:rgba(28,27,24,.92);border-bottom:2px solid var(--brown)}
+  .nav{display:flex;justify-content:space-between;align-items:center;gap:18px;max-width:1180px;margin:0 auto;padding:14px 32px}
+  .navlogo{font-family:"Anton",sans-serif;font-size:30px;letter-spacing:.06em;color:var(--paper);transform:rotate(-2deg)}
+  .navlogo b{color:var(--rust)}
+  .nav__links{display:flex;gap:24px;font-family:"Special Elite";font-size:15px;text-transform:uppercase;letter-spacing:.04em}
+  .nav__links a{transform:rotate(-1deg);transition:color .2s}
+  .nav__links a:hover{color:var(--rust)}
+  .nav__links a:nth-child(2){transform:rotate(1deg)}
+
+  /* ===== hero ===== */
+  .hero{position:relative;padding:80px 0 70px;overflow:hidden}
+  .hero__grid{display:grid;grid-template-columns:1.35fr .65fr;gap:40px;align-items:center}
+  .ransom{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+  .ransom span{font-family:"Anton",sans-serif;font-size:clamp(60px,15vw,180px);line-height:.8;
+    padding:0 .06em;color:var(--paper);display:inline-block}
+  .ransom span:nth-child(1){background:var(--rust);color:var(--paper);transform:rotate(-3deg)}
+  .ransom span:nth-child(2){color:var(--paper);transform:rotate(2deg);border-bottom:8px solid var(--rust)}
+  .ransom span:nth-child(3){background:var(--paper);color:var(--black);transform:rotate(-1deg)}
+  .ransom span:nth-child(4){color:var(--grey);transform:rotate(3deg);-webkit-text-stroke:2px var(--paper)}
+  .hero__scrawl{font-family:"Permanent Marker",cursive;font-size:clamp(24px,4vw,40px);color:var(--rust);
+    transform:rotate(-2deg);margin:10px 0 6px}
+  .hero__sub{max-width:430px;font-size:16px;color:var(--paper-d);margin-top:14px;line-height:1.75}
+  .hero__sub .strike{text-decoration:line-through;text-decoration-color:var(--rust);text-decoration-thickness:3px;color:var(--grey)}
+  .hero__cta{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap}
+  .hero__est{font-family:"Permanent Marker";color:var(--grey);margin-top:22px;transform:rotate(-1deg)}
+
+  /* album sleeve collage */
+  .sleeve-wrap{position:relative;display:grid;place-items:center}
+  .sleeve{position:relative;width:84%;max-width:320px;aspect-ratio:1;background:var(--brown);
+    transform:rotate(-4deg);box-shadow:0 18px 40px rgba(0,0,0,.55);overflow:hidden}
+  .sleeve .blk{position:absolute;background:var(--rust);width:70%;height:34%;top:18%;left:-6%;transform:rotate(-6deg)}
+  .sleeve .blk2{position:absolute;background:var(--paper);width:46%;height:46%;bottom:8%;right:6%;transform:rotate(4deg);opacity:.9}
+  .sleeve .ttl{position:absolute;bottom:14px;left:14px;font-family:"Anton";font-size:26px;color:var(--paper);z-index:3;line-height:.9;text-transform:uppercase}
+  .sleeve .scr{position:absolute;top:10px;right:14px;font-family:"Permanent Marker";color:var(--black);transform:rotate(8deg);z-index:3}
+  .sleeve::after{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='m'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");opacity:.12;mix-blend-mode:overlay}
+
+  /* ink blot decos */
+  .blot{position:absolute;pointer-events:none;opacity:.5;z-index:0}
+
+  /* section base */
+  .sec{padding:74px 0;position:relative;border-top:2px solid var(--brown)}
+  .sec__h{font-family:"Anton";font-size:clamp(34px,6vw,72px);text-transform:uppercase;color:var(--paper);
+    transform:rotate(-1.5deg);margin-bottom:6px;display:inline-block}
+  .sec__h .r{color:var(--rust)}
+  .sec__sub{font-family:"Permanent Marker";color:var(--grey);margin-bottom:40px;transform:rotate(.5deg)}
+
+  /* new record */
+  .record{display:grid;grid-template-columns:1fr 1.1fr;gap:50px;align-items:center}
+  .tracklist{list-style:none;border-top:1px dashed var(--grey)}
+  .tracklist li{display:flex;align-items:center;gap:16px;padding:11px 0;border-bottom:1px dashed var(--grey);
+    font-size:16px;transition:transform .15s, color .15s}
+  .tracklist li:hover{transform:translateX(8px);color:var(--rust)}
+  .tracklist li .no{font-family:"Anton";color:var(--rust);width:34px;font-size:18px}
+  .tracklist li .nm{flex:1;text-transform:uppercase;letter-spacing:.02em}
+  .tracklist li .tm{color:var(--grey);font-size:14px}
+  .record .recart{display:grid;place-items:center}
+  .listen{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+  .listen a{font-family:"Special Elite";text-transform:uppercase;font-size:13px;letter-spacing:.06em;
+    border:1px solid var(--grey);padding:9px 16px;transform:rotate(-1deg);transition:all .2s}
+  .listen a:hover{background:var(--rust);border-color:var(--rust);color:var(--paper)}
+
+  /* tour dates */
+  .tour__row{display:grid;grid-template-columns:160px 1fr 1fr 130px;gap:20px;align-items:center;
+    padding:20px 14px;position:relative;transition:background .2s, transform .15s}
+  .tour__row + .tour__row{border-top:1px dashed var(--grey)}
+  .tour__row:hover{background:rgba(122,116,102,.12);transform:rotate(-.4deg)}
+  .tour__date{font-family:"Anton";font-size:24px;color:var(--paper);text-transform:uppercase}
+  .tour__city{font-size:18px;text-transform:uppercase;letter-spacing:.03em}
+  .tour__venue{color:var(--grey);font-size:15px}
+  .tour__act{text-align:right}
+  .tour__act .buy{font-family:"Anton";color:var(--rust);text-transform:uppercase;font-size:17px}
+  .tour__act .buy:hover{color:var(--paper)}
+  .soldout{font-family:"Permanent Marker";color:var(--rust);border:3px solid var(--rust);
+    padding:3px 12px;display:inline-block;transform:rotate(-8deg);font-size:15px;letter-spacing:.04em;opacity:.9}
+
+  /* merch */
+  .merch{display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+  .item{position:relative;transform:rotate(var(--rot,-2deg));transition:transform .18s}
+  .item:nth-child(2){--rot:1.5deg}.item:nth-child(3){--rot:-1deg}
+  .item:hover{transform:rotate(0) translateY(-4px)}
+  .item__art{aspect-ratio:1;background:var(--brown);display:grid;place-items:center;position:relative;overflow:hidden;border:1px solid var(--brown)}
+  .item__art .ph{font-family:"Anton";font-size:46px;color:var(--grey);text-transform:uppercase;opacity:.7}
+  .item__art . co{position:absolute;width:60%;height:60%;background:var(--rust);transform:rotate(-8deg);opacity:.85}
+  .item__art .ph{position:relative;z-index:2;color:var(--paper)}
+  .item__cap{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px}
+  .item__cap .nm{font-family:"Anton";text-transform:uppercase;font-size:19px}
+  .item__cap .pr{font-family:"Permanent Marker";color:var(--rust)}
+
+  /* about strip */
+  .about{display:grid;grid-template-columns:.8fr 1.2fr;gap:50px;align-items:center}
+  .photo{aspect-ratio:4/5;background:var(--grey);position:relative;transform:rotate(-3deg);box-shadow:0 14px 30px rgba(0,0,0,.5)}
+  .photo .ov{position:absolute;inset:0;background:linear-gradient(0deg,rgba(28,27,24,.5),transparent);mix-blend-mode:multiply}
+  .photo .nm{position:absolute;bottom:12px;left:14px;font-family:"Permanent Marker";color:var(--paper);z-index:2}
+  .about p{font-size:17px;line-height:1.85;color:var(--paper-d)}
+  .about p + p{margin-top:16px}
+  .about .big{font-family:"Permanent Marker";color:var(--rust);font-size:24px;transform:rotate(-1deg);margin-bottom:14px}
+
+  /* footer */
+  footer{border-top:2px solid var(--rust);padding:54px 0 30px;position:relative}
+  .foot{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:36px}
+  .foot .navlogo{font-size:40px}
+  .foot p{color:var(--grey);font-size:14px;margin-top:12px;max-width:300px}
+  .foot h5{font-family:"Anton";text-transform:uppercase;color:var(--rust);font-size:16px;margin-bottom:12px;transform:rotate(-1deg);display:inline-block}
+  .foot a{display:block;font-size:15px;padding:4px 0;color:var(--paper-d)}
+  .foot a:hover{color:var(--rust)}
+  .footbar{margin-top:46px;border-top:1px dashed var(--grey);padding-top:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--grey);text-transform:uppercase;letter-spacing:.04em}
+
+  .reveal{opacity:0;transform:translateY(28px) rotate(-2deg);transition:opacity .6s ease, transform .6s cubic-bezier(.2,.8,.3,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:860px){
+    .hero__grid,.record,.about{grid-template-columns:1fr;gap:34px}
+    .sleeve-wrap{order:-1}
+    .merch{grid-template-columns:1fr}
+    .tour__row{grid-template-columns:1fr;gap:4px;text-align:left}
+    .tour__act{text-align:left}
+    .nav__links{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- nav -->
+<nav>
+  <div class="nav">
+    <a href="#" class="navlogo">RU<b>S</b>T</a>
+    <div class="nav__links">
+      <a href="#record">新专辑</a>
+      <a href="#tour">巡演</a>
+      <a href="#merch">周边</a>
+      <a href="#about">关于</a>
+    </div>
+    <a href="#record" class="btn">▶ 听 歌</a>
+  </div>
+</nav>
+
+<!-- hero -->
+<header class="hero">
+  <!-- ink blots -->
+  <svg class="blot" style="top:-40px;right:6%;width:260px" viewBox="0 0 200 200"><path d="M100,20 C140,10 180,40 175,90 C170,130 190,160 150,180 C110,198 60,185 40,150 C18,112 10,60 50,35 C68,24 80,25 100,20 Z" fill="#b3402e"/></svg>
+  <svg class="blot" style="bottom:0;left:-30px;width:180px;opacity:.3" viewBox="0 0 200 200"><path d="M100,20 C150,30 185,60 170,110 C158,150 175,175 130,185 C90,194 45,180 30,140 C16,103 20,55 60,32 Z" fill="#7a7466"/></svg>
+
+  <div class="wrap hero__grid">
+    <div>
+      <div class="ransom anton"><span>R</span><span>U</span><span>S</span><span>T</span></div>
+      <div class="hero__scrawl">越破越旧，越有态度。</div>
+      <p class="hero__sub">新专辑《BEAUTIFULLY WRECKED》全网上架。十一首关于<span class="strike">体面</span>裂缝、噪音与不肯长大的歌。锈得理直气壮。</p>
+      <div class="hero__cta">
+        <a href="#record" class="btn">▶ 立即收听</a>
+        <a href="#tour" class="btn btn--ghost">看巡演 →</a>
+      </div>
+      <div class="hero__est">— EST. 1994 · STILL WRECKED —</div>
+    </div>
+    <div class="sleeve-wrap">
+      <span class="tape" style="top:-6px;left:30%"></span>
+      <div class="sleeve torn">
+        <div class="blk"></div>
+        <div class="blk2"></div>
+        <div class="scr">vol. III</div>
+        <div class="ttl">BEAUTI-<br>FULLY<br>WRECKED</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- new record -->
+<section class="sec" id="record">
+  <div class="wrap">
+    <h2 class="sec__h reveal">新 <span class="r">专辑</span></h2>
+    <div class="sec__sub reveal">《BEAUTIFULLY WRECKED》· 2026 · 11 首</div>
+    <div class="record">
+      <div class="recart reveal">
+        <span class="tape r" style="top:-8px;right:24%"></span>
+        <div class="sleeve torn" style="transform:rotate(3deg);max-width:300px;width:100%">
+          <div class="blk" style="background:var(--paper)"></div>
+          <div class="blk2" style="background:var(--rust)"></div>
+          <div class="ttl">RUST</div>
+          <div class="scr">'26</div>
+        </div>
+      </div>
+      <div class="reveal">
+        <ol class="tracklist">
+          <li><span class="no">01</span><span class="nm">Beautifully Wrecked</span><span class="tm">3:42</span></li>
+          <li><span class="no">02</span><span class="nm">Static Teeth</span><span class="tm">2:58</span></li>
+          <li><span class="no">03</span><span class="nm">越破越旧</span><span class="tm">4:11</span></li>
+          <li><span class="no">04</span><span class="nm">Dead Cassette</span><span class="tm">3:20</span></li>
+          <li><span class="no">05</span><span class="nm">Gutter Bloom</span><span class="tm">5:03</span></li>
+          <li><span class="no">06</span><span class="nm">不肯长大</span><span class="tm">3:37</span></li>
+        </ol>
+        <div class="listen">
+          <a href="#">Spotify</a><a href="#">Apple Music</a><a href="#">Bandcamp</a><a href="#">网易云</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- tour dates -->
+<section class="sec" id="tour">
+  <div class="wrap">
+    <h2 class="sec__h reveal">巡 <span class="r">演</span></h2>
+    <div class="sec__sub reveal">WRECKED TOUR 2026 · 八城十场</div>
+    <div class="reveal">
+      <div class="tour__row">
+        <div class="tour__date">07/12</div><div class="tour__city">上海 / SHANGHAI</div>
+        <div class="tour__venue">育音堂 · Yuyintang</div><div class="tour__act"><span class="soldout">SOLD OUT</span></div>
+      </div>
+      <div class="tour__row">
+        <div class="tour__date">07/19</div><div class="tour__city">北京 / BEIJING</div>
+        <div class="tour__venue">School 酒吧</div><div class="tour__act"><a href="#" class="buy">购票 →</a></div>
+      </div>
+      <div class="tour__row">
+        <div class="tour__date">07/26</div><div class="tour__city">成都 / CHENGDU</div>
+        <div class="tour__venue">小酒馆 · 芳沁店</div><div class="tour__act"><a href="#" class="buy">购票 →</a></div>
+      </div>
+      <div class="tour__row">
+        <div class="tour__date">08/02</div><div class="tour__city">武汉 / WUHAN</div>
+        <div class="tour__venue">VOX Livehouse</div><div class="tour__act"><span class="soldout">SOLD OUT</span></div>
+      </div>
+      <div class="tour__row">
+        <div class="tour__date">08/09</div><div class="tour__city">广州 / GUANGZHOU</div>
+        <div class="tour__venue">TU 凸空间</div><div class="tour__act"><a href="#" class="buy">购票 →</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- merch -->
+<section class="sec" id="merch">
+  <div class="wrap">
+    <h2 class="sec__h reveal">周 <span class="r">边</span></h2>
+    <div class="sec__sub reveal">穿在身上的噪音 · 限量补不了</div>
+    <div class="merch">
+      <div class="item reveal">
+        <div class="item__art"><span class="co"></span><span class="ph">TEE</span></div>
+        <div class="item__cap"><span class="nm">做旧乐队 T</span><span class="pr">¥149</span></div>
+      </div>
+      <div class="item reveal">
+        <div class="item__art"><span class="co" style="background:var(--grey)"></span><span class="ph">LP</span></div>
+        <div class="item__cap"><span class="nm">黑胶 · 锈红碟</span><span class="pr">¥288</span></div>
+      </div>
+      <div class="item reveal">
+        <div class="item__art"><span class="co" style="background:var(--paper)"></span><span class="ph" style="color:var(--black)">TAPE</span></div>
+        <div class="item__cap"><span class="nm">磁带 · 限量</span><span class="pr">¥88</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- about -->
+<section class="sec" id="about">
+  <div class="wrap about">
+    <div class="photo reveal">
+      <span class="tape" style="top:-8px;left:30%"></span>
+      <div class="ov"></div>
+      <div class="nm">— the band, 1994 —</div>
+    </div>
+    <div class="reveal">
+      <h2 class="sec__h">关 <span class="r">于</span></h2>
+      <div class="big">四个不肯把吉他调准的人。</div>
+      <p>RUST 成立于一间漏雨的地下室。我们从不打磨毛刺，不修平噪音，把跑调和啸叫一起录进去——因为那才是当时房间里真正发生的事。</p>
+      <p>三十年过去，我们更锈了，也更不在乎了。这张《BEAUTIFULLY WRECKED》，献给所有觉得「破」也是一种完整的人。</p>
+    </div>
+  </div>
+</section>
+
+<!-- footer -->
+<footer>
+  <div class="wrap foot">
+    <div>
+      <a href="#" class="navlogo">RU<b>S</b>T</a>
+      <p>独立摇滚 · 越破越旧越有态度。Beautifully wrecked since 1994.</p>
+    </div>
+    <div>
+      <h5>听</h5>
+      <a href="#">Spotify</a><a href="#">Bandcamp</a><a href="#">网易云音乐</a><a href="#">YouTube</a>
+    </div>
+    <div>
+      <h5>跟</h5>
+      <a href="#">Instagram</a><a href="#">微博</a><a href="#">小红书</a><a href="#">booking@rust.band</a>
+    </div>
+  </div>
+  <div class="wrap footbar">
+    <span>© MMXXVI RUST · 做旧划痕 · 撕纸拼贴 · 不修边幅</span>
+    <span>★ STILL BEAUTIFULLY WRECKED ★</span>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

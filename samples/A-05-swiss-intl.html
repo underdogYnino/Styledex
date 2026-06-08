@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RASTER® — 网格即秩序，秩序即美 / THE GRID IS LAW</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700;900&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --white:#ffffff;
+    --paper:#f4f4f2;
+    --grey-l:#e8e8e8;
+    --grey:#888888;
+    --ink:#111111;
+    --red:#e2231a;
+    --maxw:1280px;
+    --pad:48px;
+    --cols:12;
+    --gap:24px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--white);
+    color:var(--ink);
+    font-family:"Helvetica Neue",Helvetica,"Schibsted Grotesk","Noto Sans SC",Arial,sans-serif;
+    font-size:15px;line-height:1.55;font-weight:400;
+    -webkit-font-smoothing:antialiased;letter-spacing:-.005em;
+  }
+  a{color:inherit;text-decoration:none}
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--pad)}
+  .grid{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:var(--gap)}
+
+  .mono{font-variant-numeric:tabular-nums}
+  .label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;color:var(--grey)}
+  .label .n{color:var(--red);margin-right:8px;font-weight:700}
+  .red{color:var(--red)}
+  .hair{height:1px;background:var(--ink);width:100%}
+
+  /* ===== grid overlay ===== */
+  #gridoverlay{position:fixed;inset:0;z-index:900;pointer-events:none;display:none}
+  #gridoverlay.on{display:block}
+  #gridoverlay .wrap{height:100%}
+  #gridoverlay .cols{height:100%;display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:var(--gap)}
+  #gridoverlay .cols i{background:rgba(226,35,26,.06);border-left:1px solid rgba(226,35,26,.35);border-right:1px solid rgba(226,35,26,.35)}
+  #gridoverlay .base{position:absolute;inset:0;background-image:repeating-linear-gradient(180deg,transparent 0,transparent 23px,rgba(226,35,26,.14) 24px)}
+
+  .gridtoggle{position:fixed;right:20px;bottom:20px;z-index:950;background:var(--ink);color:var(--white);
+    border:none;cursor:pointer;font:inherit;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
+    padding:11px 16px;display:flex;gap:10px;align-items:center}
+  .gridtoggle .st{color:var(--red)}
+  .gridtoggle:hover{background:var(--red);color:var(--white)}
+  .gridtoggle:hover .st{color:var(--white)}
+
+  /* ===== top meta bar ===== */
+  .meta-bar{border-bottom:1px solid var(--ink)}
+  .meta-bar .wrap{display:flex;justify-content:space-between;align-items:center;padding-top:9px;padding-bottom:9px;flex-wrap:wrap;gap:8px}
+  .meta-bar .label{color:var(--ink)}
+
+  /* nav */
+  nav{border-bottom:1px solid var(--ink);position:sticky;top:0;background:var(--white);z-index:80}
+  .nav{display:flex;justify-content:space-between;align-items:center;padding-top:18px;padding-bottom:18px}
+  .brand{font-size:22px;font-weight:900;letter-spacing:-.02em}
+  .brand .r{color:var(--red)}
+  .nav__links{display:flex;gap:30px;font-size:13px;font-weight:500}
+  .nav__links a{position:relative;padding-bottom:2px}
+  .nav__links a:hover{color:var(--red)}
+  .nav__links a.contact{color:var(--red)}
+
+  /* ===== hero ===== */
+  .hero{padding-top:84px;padding-bottom:64px;border-bottom:1px solid var(--ink)}
+  .hero .grid{align-items:end}
+  .hero__no{grid-column:1 / 3;font-size:13px;font-weight:700}
+  .hero__no .red{font-size:46px;display:block;line-height:1}
+  .hero__title{grid-column:1 / 10}
+  .hero h1{font-size:clamp(46px,8.4vw,128px);font-weight:900;line-height:.92;letter-spacing:-.035em}
+  .hero h1 .en{display:block;font-size:clamp(20px,3vw,40px);font-weight:500;color:var(--grey);letter-spacing:-.01em;margin-top:14px}
+  .hero__aside{grid-column:10 / 13;align-self:end}
+  .hero__aside p{font-size:14px;line-height:1.6;margin-bottom:18px}
+  .hero__aside .sq{width:44px;height:44px;background:var(--red);margin-bottom:18px}
+  .hero__meta{margin-top:54px}
+  .hero__meta .grid > div{grid-column:span 3}
+  .hero__meta .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:6px}
+  .hero__meta .v{font-size:15px;font-weight:500}
+
+  /* ===== section base ===== */
+  .sec{padding-top:72px;padding-bottom:72px;border-bottom:1px solid var(--ink)}
+  .sec__head{margin-bottom:44px}
+  .sec__head .grid{align-items:baseline}
+  .sec__head h2{grid-column:1 / 9;font-size:clamp(26px,3.6vw,44px);font-weight:900;letter-spacing:-.03em;line-height:1}
+  .sec__head .right{grid-column:9 / 13;text-align:right;align-self:baseline}
+
+  /* work index (table-like) */
+  .index__row{display:grid;grid-template-columns:64px 1fr 1fr 160px 70px;gap:var(--gap);align-items:center;
+    padding:18px 0;border-top:1px solid var(--ink);transition:padding-left .2s ease, background .2s ease}
+  .index__row:last-child{border-bottom:1px solid var(--ink)}
+  .index__row:hover{background:var(--ink);color:var(--white);padding-left:14px}
+  .index__row:hover .no{color:var(--red)}
+  .index__row .no{font-weight:700;font-variant-numeric:tabular-nums}
+  .index__row .nm{font-size:20px;font-weight:700;letter-spacing:-.02em}
+  .index__row .cl{color:var(--grey)}
+  .index__row:hover .cl{color:#bbb}
+  .index__row .dc{font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+  .index__row .yr{text-align:right;font-variant-numeric:tabular-nums;color:var(--grey)}
+  .index__row:hover .yr{color:#bbb}
+
+  /* services */
+  .services .grid > .svc{grid-column:span 4}
+  .svc{padding-top:22px;border-top:2px solid var(--ink)}
+  .svc .no{font-size:13px;font-weight:700;color:var(--red);margin-bottom:14px}
+  .svc h3{font-size:21px;font-weight:700;letter-spacing:-.02em;margin-bottom:10px}
+  .svc p{font-size:14px;color:#333;line-height:1.6}
+
+  /* facts */
+  .facts{background:var(--ink);color:var(--white);border-bottom:1px solid var(--ink)}
+  .facts .sec{border-bottom:none}
+  .facts .grid > div{grid-column:span 3}
+  .fact .v{font-size:clamp(44px,7vw,92px);font-weight:900;letter-spacing:-.04em;line-height:.9;font-variant-numeric:tabular-nums}
+  .fact .v .red{color:var(--red)}
+  .fact .k{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-top:14px}
+
+  /* clients */
+  .clients .grid > div{grid-column:span 3;border-top:1px solid var(--ink);padding:16px 0;font-weight:500}
+
+  /* manifesto */
+  .manifesto h2{grid-column:1 / 4;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+  .manifesto .body{grid-column:4 / 13}
+  .manifesto .body p{font-size:clamp(22px,3.2vw,38px);font-weight:500;letter-spacing:-.02em;line-height:1.32}
+  .manifesto .body p .red{color:var(--red)}
+  .manifesto .body p + p{margin-top:26px}
+
+  /* contact / footer */
+  footer{padding-top:72px;padding-bottom:30px}
+  .foot .grid > div{grid-column:span 3}
+  .foot h5{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);margin-bottom:16px}
+  .foot a,.foot .li{display:block;font-size:15px;font-weight:500;padding:3px 0}
+  .foot a:hover{color:var(--red)}
+  .foot .big{grid-column:span 6}
+  .foot .big .cta{font-size:clamp(26px,4vw,50px);font-weight:900;letter-spacing:-.03em;line-height:1.05}
+  .foot .big .cta a:hover{color:var(--red)}
+  .footbar{border-top:1px solid var(--ink);margin-top:54px;padding-top:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .45s ease, transform .45s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:900px){
+    :root{--pad:24px;--gap:14px}
+    .hero__no,.hero__title,.hero__aside{grid-column:1 / 13}
+    .hero__aside{margin-top:30px}
+    .hero__meta .grid > div{grid-column:span 6}
+    .sec__head h2{grid-column:1 / 13}
+    .sec__head .right{grid-column:1/13;text-align:left;margin-top:10px}
+    .services .grid > .svc{grid-column:span 12}
+    .facts .grid > div,.clients .grid > div{grid-column:span 6}
+    .manifesto h2,.manifesto .body{grid-column:1/13}
+    .manifesto h2{margin-bottom:18px}
+    .foot .grid > div,.foot .big{grid-column:span 12}
+    .index__row{grid-template-columns:40px 1fr 64px;row-gap:4px}
+    .index__row .cl,.index__row .dc{display:none}
+    .nav__links{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- grid overlay -->
+<div id="gridoverlay">
+  <div class="base"></div>
+  <div class="wrap"><div class="cols" id="gridcols"></div></div>
+</div>
+<button class="gridtoggle" id="gtog">GRID <span class="st" id="gst">[ OFF ]</span></button>
+
+<!-- meta bar -->
+<div class="meta-bar">
+  <div class="wrap">
+    <span class="label">SUBJECT A-05 · SWISS / INTL</span>
+    <span class="label">网格即秩序，秩序即美 · THE GRID IS LAW</span>
+    <span class="label">上海 — 苏黎世 · 31.23°N</span>
+  </div>
+</div>
+
+<!-- nav -->
+<nav>
+  <div class="wrap nav">
+    <a href="#" class="brand">RASTE<span class="r">R</span>®</a>
+    <div class="nav__links">
+      <a href="#index">作品 INDEX</a>
+      <a href="#services">服务 SERVICES</a>
+      <a href="#about">关于 ABOUT</a>
+      <a href="#contact" class="contact">联系 CONTACT</a>
+    </div>
+  </div>
+</nav>
+
+<!-- hero -->
+<header class="hero">
+  <div class="wrap">
+    <div class="grid">
+      <div class="hero__no"><span class="red mono">01</span>平面设计工作室<br>EST. MMXXVI</div>
+      <div class="hero__title">
+        <h1>网格即秩序<br>秩序即美<span class="en">THE GRID IS LAW — A GRAPHIC DESIGN STUDIO</span></h1>
+      </div>
+      <div class="hero__aside">
+        <div class="sq"></div>
+        <p>我们用数学网格组织信息：克制颜色、强化层级、剔除一切装饰。让内容自己说话。</p>
+        <a href="#index" class="label" style="color:var(--red)">↓ 查看作品索引</a>
+      </div>
+    </div>
+    <div class="hero__meta">
+      <div class="grid">
+        <div><div class="k">学科 / Discipline</div><div class="v">品牌识别 · 编辑设计</div></div>
+        <div><div class="k">系统 / System</div><div class="v">字体排印 · 网格系统</div></div>
+        <div><div class="k">载体 / Output</div><div class="v">印刷 · 数字 · 环境图形</div></div>
+        <div><div class="k">原则 / Principle</div><div class="v">功能主义 · 无装饰</div></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- work index -->
+<section class="sec" id="index">
+  <div class="wrap">
+    <div class="sec__head">
+      <div class="grid">
+        <h2>作品索引</h2>
+        <div class="right label"><span class="n mono">02</span>SELECTED WORK · 2024—2026</div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="index__row"><span class="no mono">№001</span><span class="nm">NEUE BANK 品牌识别</span><span class="cl">Neue Bank AG</span><span class="dc">Branding</span><span class="yr mono">2026</span></div>
+      <div class="index__row"><span class="no mono">№002</span><span class="nm">季刊《网格》</span><span class="cl">Raster Press</span><span class="dc">Editorial</span><span class="yr mono">2025</span></div>
+      <div class="index__row"><span class="no mono">№003</span><span class="nm">OTL 字体家族</span><span class="cl">Foundry Type</span><span class="dc">Typeface</span><span class="yr mono">2025</span></div>
+      <div class="index__row"><span class="no mono">№004</span><span class="nm">美术馆导视系统</span><span class="cl">市立美术馆</span><span class="dc">Wayfinding</span><span class="yr mono">2024</span></div>
+      <div class="index__row"><span class="no mono">№005</span><span class="nm">年报 2025</span><span class="cl">Helvetia Group</span><span class="dc">Report</span><span class="yr mono">2025</span></div>
+      <div class="index__row"><span class="no mono">№006</span><span class="nm">网格系统手册</span><span class="cl">Raster Press</span><span class="dc">Book</span><span class="yr mono">2024</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- services -->
+<section class="sec services" id="services">
+  <div class="wrap">
+    <div class="sec__head">
+      <div class="grid">
+        <h2>我们做什么</h2>
+        <div class="right label"><span class="n mono">03</span>SERVICES</div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="svc reveal"><div class="no mono">01</div><h3>品牌识别系统</h3><p>从标志到完整视觉规范。一套可被严格执行的网格、字体与色彩系统，而非一张好看的图。</p></div>
+      <div class="svc reveal"><div class="no mono">02</div><h3>编辑与出版设计</h3><p>书籍、期刊、年报、白皮书。以基线网格与清晰层级，让长内容也保持秩序与可读。</p></div>
+      <div class="svc reveal"><div class="no mono">03</div><h3>字体排印与网格</h3><p>定制字体、排印规范与栅格系统。功能先行，结构外露，删去一切不承担功能的装饰。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- facts -->
+<div class="facts">
+  <div class="wrap sec">
+    <div class="grid">
+      <div class="fact reveal"><div class="v mono">86</div><div class="k">已交付项目</div></div>
+      <div class="fact reveal"><div class="v mono">40</div><div class="k">合作客户</div></div>
+      <div class="fact reveal"><div class="v mono">12<span class="red">.</span></div><div class="k">国际奖项</div></div>
+      <div class="fact reveal"><div class="v mono">1<span class="red">/</span>1</div><div class="k">网格对齐率</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- clients -->
+<section class="sec clients">
+  <div class="wrap">
+    <div class="sec__head">
+      <div class="grid">
+        <h2>部分客户</h2>
+        <div class="right label"><span class="n mono">04</span>CLIENTS</div>
+      </div>
+    </div>
+    <div class="grid">
+      <div>Neue Bank AG</div><div>Helvetia Group</div><div>市立美术馆</div><div>Foundry Type</div>
+      <div>国家图书馆</div><div>Modular Inc.</div><div>季刊《网格》</div><div>Bauhaus Archiv</div>
+    </div>
+  </div>
+</section>
+
+<!-- manifesto -->
+<section class="sec manifesto" id="about">
+  <div class="wrap">
+    <div class="grid">
+      <h2>信条 / Manifesto</h2>
+      <div class="body reveal">
+        <p>网格不是束缚，是<span class="red">秩序的语法</span>。当每个元素都落在它该在的位置，阅读就不再需要费力。</p>
+        <p>我们相信<span class="red">删减</span>：去掉阴影、渐变、圆角与一切讨好眼睛却不承担功能的东西。剩下的，才是设计。</p>
+        <p>黑、白，与一抹<span class="red">红</span>——足够说清任何重要的事。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- footer -->
+<footer id="contact">
+  <div class="wrap foot">
+    <div class="grid">
+      <div class="big">
+        <div class="cta">有项目？<br><a href="#" class="red">hello@raster.studio →</a></div>
+      </div>
+      <div>
+        <h5>工作室 Studio</h5>
+        <span class="li">上海市 · 某创意园区 A 栋 5F</span>
+        <span class="li">苏黎世 · Bahnhofstrasse 1</span>
+      </div>
+      <div>
+        <h5>联系 Contact</h5>
+        <a href="#">hello@raster.studio</a>
+        <a href="#">+86 021 0000 0000</a>
+        <a href="#">招聘 / Careers</a>
+      </div>
+      <div>
+        <h5>关注 Follow</h5>
+        <a href="#">Instagram</a>
+        <a href="#">Behance</a>
+        <a href="#">X / Twitter</a>
+        <a href="#">小红书</a>
+      </div>
+    </div>
+    <div class="footbar">
+      <span class="label">© MMXXVI RASTER® · 网格即秩序</span>
+      <span class="label">按 <span class="red">G</span> 键切换网格 · GRID IS LAW</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // build 12 grid columns for overlay
+  const cols = document.getElementById('gridcols');
+  for(let i=0;i<12;i++){ cols.appendChild(document.createElement('i')); }
+
+  // toggle grid
+  const ov = document.getElementById('gridoverlay');
+  const st = document.getElementById('gst');
+  function toggleGrid(){
+    const on = ov.classList.toggle('on');
+    st.textContent = on ? '[ ON ]' : '[ OFF ]';
+  }
+  document.getElementById('gtog').addEventListener('click', toggleGrid);
+  document.addEventListener('keydown', (e)=>{
+    if((e.key === 'g' || e.key === 'G') && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)){ toggleGrid(); }
+  });
+
+  // reveal
+  const io = new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
